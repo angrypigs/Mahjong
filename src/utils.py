@@ -1,11 +1,20 @@
 import pygame
 
-from os import path
+import os
 import sys
 
 HEIGHT = 700
 WIDTH = 1000
 FPS = 90
+
+BOARD_WIDTH = 15
+BOARD_DEPTH = 8
+BOARD_HEIGHT = 5
+
+TILE_WIDTH = 100 // 4
+TILE_DEPTH = 133 // 4
+TILE_HEIGHT = 16 // 4
+
 
 BTN_COLOR = (40, 40, 40)
 BTN_COLOR_ACTIVE = (70, 70, 70)
@@ -61,4 +70,31 @@ def res_path(rel_path: str) -> str:
         base_path = sys._MEIPASS
     except Exception:
         base_path = sys.path[0]
-    return path.normpath(path.join(base_path, rel_path))
+    return os.path.normpath(os.path.join(base_path, rel_path))
+
+TILES_TEXTURES : dict[str, dict[str, pygame.Surface]] = {
+    "Dark": {},
+    "DarkSelected": {},
+    "Light": {},
+    "LightSelected": {}
+}
+
+def init_assets() -> None:
+    for filename in os.listdir(res_path("assets/Dark Theme")):
+        if filename.startswith("Neutral"):
+            key = filename.removeprefix("Neutral ").removesuffix(".png")
+            if key != "Blank":
+                image_path = os.path.join(res_path("assets/Dark Theme"), filename)
+                image = pygame.image.load(image_path)
+                width, height = image.get_size()
+                scaled_image = pygame.transform.smoothscale(image, (width // 4, height // 4))
+                TILES_TEXTURES["Dark"][key] = scaled_image
+        elif filename.startswith("Selected"):
+            key = filename.removeprefix("Selected ").removesuffix(".png")
+            if key != "Blank":
+                print(key)
+                image_path = os.path.join(res_path("assets/Dark Theme"), filename)
+                image = pygame.image.load(image_path)
+                width, height = image.get_size()
+                scaled_image = pygame.transform.smoothscale(image, (width // 4, height // 4))
+                TILES_TEXTURES["DarkSelected"][key] = scaled_image
