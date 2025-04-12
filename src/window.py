@@ -13,7 +13,7 @@ class Window:
         pygame.display.set_caption("Madżong")
         self.clock = pygame.time.Clock()
         self.running = True
-        self.game_mode = 0
+        self.game_mode = 1
         init_assets()
         self.current_screen : Screen = Game(self.screen)
         self.pos = (0, 0)
@@ -24,6 +24,14 @@ class Window:
                     self.running = False
                 elif event.type == pygame.MOUSEMOTION:
                     self.pos = event.pos
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    if event.button == 1:
+                        self.current_screen.press_left()
+                elif event.type == pygame.MOUSEBUTTONUP:
+                    if event.button == 1:
+                        self.current_screen.release_left()
+                        
+                                
             self.current_screen.draw(self.pos)
             pygame.display.flip()
             self.clock.tick(FPS)

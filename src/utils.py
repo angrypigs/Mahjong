@@ -11,9 +11,11 @@ BOARD_WIDTH = 15
 BOARD_DEPTH = 8
 BOARD_HEIGHT = 5
 
-TILE_WIDTH = 100 // 4
-TILE_DEPTH = 133 // 4
-TILE_HEIGHT = 16 // 4
+SCALE_FACTOR = (1, 3)
+
+TILE_WIDTH = 100 * SCALE_FACTOR[0] // SCALE_FACTOR[1]
+TILE_DEPTH = 133 * SCALE_FACTOR[0] // SCALE_FACTOR[1]
+TILE_HEIGHT = 16 * SCALE_FACTOR[0] // SCALE_FACTOR[1]
 
 
 BTN_COLOR = (40, 40, 40)
@@ -60,6 +62,12 @@ class Screen:
 
     def draw(self, pos: tuple[int, int]) -> None:
         raise NotImplementedError()
+    
+    def press_left(self) -> None:
+        print("lol")
+    
+    def release_left(self) -> None:
+        print("lol")
         
 
 def res_path(rel_path: str) -> str:
@@ -80,6 +88,8 @@ TILES_TEXTURES : dict[str, dict[str, pygame.Surface]] = {
 }
 
 def init_assets() -> None:
+    TILES_TEXTURES["bg"] = pygame.transform.smoothscale(
+        pygame.image.load(os.path.join(res_path("assets/Background & Shadow"), "Background Green.png")), (WIDTH, HEIGHT))
     for filename in os.listdir(res_path("assets/Dark Theme")):
         if filename.startswith("Neutral"):
             key = filename.removeprefix("Neutral ").removesuffix(".png")
@@ -87,14 +97,15 @@ def init_assets() -> None:
                 image_path = os.path.join(res_path("assets/Dark Theme"), filename)
                 image = pygame.image.load(image_path)
                 width, height = image.get_size()
-                scaled_image = pygame.transform.smoothscale(image, (width // 4, height // 4))
+                scaled_image = pygame.transform.smoothscale(image, (width * SCALE_FACTOR[0] // SCALE_FACTOR[1], 
+                                                                    height * SCALE_FACTOR[0] // SCALE_FACTOR[1]))
                 TILES_TEXTURES["Dark"][key] = scaled_image
         elif filename.startswith("Selected"):
             key = filename.removeprefix("Selected ").removesuffix(".png")
             if key != "Blank":
-                print(key)
                 image_path = os.path.join(res_path("assets/Dark Theme"), filename)
                 image = pygame.image.load(image_path)
                 width, height = image.get_size()
-                scaled_image = pygame.transform.smoothscale(image, (width // 4, height // 4))
+                scaled_image = pygame.transform.smoothscale(image, (width * SCALE_FACTOR[0] // SCALE_FACTOR[1], 
+                                                                    height * SCALE_FACTOR[0] // SCALE_FACTOR[1]))
                 TILES_TEXTURES["DarkSelected"][key] = scaled_image
