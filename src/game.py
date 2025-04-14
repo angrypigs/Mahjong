@@ -20,16 +20,18 @@ class Game(Screen):
         self.selected_tile: Tile | None = None
         self.pressed_tile: Tile | None = None
         self.hovered_tile: Tile | None = None
+        self.hovered_coords: tuple[int, int, int] | None = None
         
     def draw(self, pos) -> None:
         self.screen.blit(self.bg, (0, 0))
-        self.hovered_tile = self.matrix.draw(pos)
+        self.hovered_tile, self.hovered_coords = self.matrix.draw(pos)
         
     def press_left(self) -> None:
         self.pressed_tile = self.hovered_tile
     
     def release_left(self) -> None:
-        if self.pressed_tile == self.hovered_tile and self.hovered_tile is not None:
+        if (self.pressed_tile == self.hovered_tile and self.hovered_tile is not None and
+            self.matrix.can_be_removed(self.hovered_coords)):
             if self.selected_tile is None:
                 self.pressed_tile.selected = True
                 self.selected_tile = self.pressed_tile

@@ -45,14 +45,14 @@ class tileMatrix:
                 print(self._matrix[h][d])
             print("\n") 
     
-    def draw(self, pos) -> Tile | None:
-        over = None
+    def draw(self, pos) -> tuple[Tile, tuple[int, int, int]] | tuple[None, None]:
+        over = [None, None]
         for h in range(self.size[2]):
             for d in range(self.size[1]):
                 for w in range(self.size[0]):
                     if type(self._matrix[h][d][w]) == Tile:
                         if self._matrix[h][d][w].draw(pos):
-                            over = self._matrix[h][d][w]
+                            over = (self._matrix[h][d][w], (h, d, w))
         return over
     
     def remove_tiles(self, tiles: list[Tile]) -> None:
@@ -67,5 +67,32 @@ class tileMatrix:
                             if not tiles:
                                 self.quantity -= q
                                 return
+    
+    def can_be_removed(self, coords: tuple[int, int, int]) -> bool:
+        h, d, w = coords
+        max_h = len(self._matrix)
+        max_d = len(self._matrix[0])
+        max_w = len(self._matrix[0][0])
+
+        def in_bounds(hh, dd, ww):
+            return 0 <= hh < max_h and 0 <= dd < max_d and 0 <= ww < max_w
+
+        side_counter = 0
+        for col_w in [w - 2, w + 2]:
+            for row_add in range(-1, 2):
+                if in_bounds(h, d + row_add, col_w):
+                    if isinstance(self._matrix[h][d + row_add][col_w], Tile):
+                        side_counter += 1
+                        break
+        if side_counter == 2:
+            return False
+
+        for row_add in range(-1, 2):
+            for col_add in range(-1, 2):
+                if in_bounds(h + 1, d + row_add, w + col_add):
+                    if isinstance(self._matrix[h + 1][d + row_add][w + col_add], Tile):
+                        return False
+
+        return True
     
         
