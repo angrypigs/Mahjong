@@ -11,7 +11,7 @@ class Game(Screen):
     def __init__(self, screen) -> None:
         super().__init__(screen)
         self.matrix = tileMatrix(self.screen, (BOARD_WIDTH, BOARD_DEPTH, BOARD_HEIGHT))
-        board = [[[bool(i % 2 == 0 and j % 2 == 0 and i < 12 and j < 12) for i in range(BOARD_WIDTH * 2 - 1)]
+        board = [[[bool((i % 6 == 0 or i % 6 == 2) and j % 2 == 0 and i < 18 and j < 12) for i in range(BOARD_WIDTH * 2 - 1)]
                   for j in range(BOARD_DEPTH * 2 - 1)]
                  for k in range(BOARD_HEIGHT)]
         self.matrix.generate_board(board)

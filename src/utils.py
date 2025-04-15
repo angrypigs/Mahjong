@@ -21,6 +21,9 @@ TILE_HEIGHT = 16 * SCALE_FACTOR[0] // SCALE_FACTOR[1]
 BTN_COLOR = (40, 40, 40)
 BTN_COLOR_ACTIVE = (70, 70, 70)
 
+def in_bounds(h, d, w, h_max, d_max, w_max) -> bool:
+    return 0 <= h < h_max and 0 <= d < d_max and 0 <= w < w_max
+
 class Button:
 
     def __init__(self, screen: pygame.Surface,
