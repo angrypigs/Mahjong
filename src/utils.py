@@ -21,6 +21,14 @@ TILE_HEIGHT = 16 * SCALE_FACTOR[0] // SCALE_FACTOR[1]
 BTN_COLOR = (40, 40, 40)
 BTN_COLOR_ACTIVE = (70, 70, 70)
 
+MODEL1 = [[[bool((i % 6 == 0 or i % 6 == 2) and j % 2 == 0 and i < 18 and j < 12) for i in range(BOARD_WIDTH * 2 - 1)]
+                  for j in range(BOARD_DEPTH * 2 - 1)]
+                 for k in range(BOARD_HEIGHT)]
+
+MODEL2 = [[[bool(i % 2 == 0 and j % 2 == 0 and i < 12 and j < 12) for i in range(BOARD_WIDTH * 2 - 1)]
+                  for j in range(BOARD_DEPTH * 2 - 1)]
+                 for k in range(BOARD_HEIGHT)]
+
 def in_bounds(h, d, w, h_max, d_max, w_max) -> bool:
     return 0 <= h < h_max and 0 <= d < d_max and 0 <= w < w_max
 

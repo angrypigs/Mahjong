@@ -32,11 +32,15 @@ class tileMatrix:
         self.quantity = len(keys) * 2
         for i in range(len(keys)):
             iter_places = []
+            counter = 0
             for h in range(self.size[2]):
                 for d in range(self.size[1]):
                     for w in range(self.size[0]):
-                        if self._matrix[h][d][w] == True and self.can_be_placed((h, d, w)) and self.can_be_removed((h, d, w)):
-                            iter_places.append(((h, d, w), self.__neighbor_counter((h, d, w))))
+                        if self._matrix[h][d][w] == True and self.can_be_placed((h, d, w)):
+                            counter += 1
+                            h1 = self.__neighbor_counter((h, d, w)) if self.can_be_removed((h, d, w)) else -1
+                            h2 = 2 * (self.size[2] - h)
+                            iter_places.append(((h, d, w), h1 + h2))
             best_places = []
             for p in sorted(iter_places, key=lambda x: x[1], reverse=True):
                 if len(best_places) < 2 or p[1] == best_places[0][1]:
@@ -44,18 +48,58 @@ class tileMatrix:
                 else:
                     break
             key = keys.pop()
-            for p in random.sample(best_places, 2):
-                h, d, w = p[0]
-                self._matrix[h][d][w] = Tile(self.screen, 
-                                            WIDTH // 2 - TILE_WIDTH * self.size[0] // 4 + TILE_WIDTH * w - TILE_HEIGHT * h, 
-                                            HEIGHT // 2 - TILE_DEPTH * self.size[1] // 4 + TILE_DEPTH * d - TILE_HEIGHT * h - 100,
+            try:
+                for p in random.sample(best_places, 2):
+                    h, d, w = p[0]
+                    self._matrix[h][d][w] = Tile(self.screen, 
+                                                WIDTH // 2 - TILE_WIDTH * self.size[0] // 4 + TILE_WIDTH * w - TILE_HEIGHT * h, 
+                                                HEIGHT // 2 - TILE_DEPTH * self.size[1] // 4 + TILE_DEPTH * d - TILE_HEIGHT * h - 100,
+                                                key, "Dark")
+            except ValueError:
+                print(best_places)
+                keys.append(key)
+        if keys:
+            iter_places = []
+            for h in range(self.size[2]):
+                for d in range(self.size[1]):
+                    for w in range(self.size[0]):
+                        if self._matrix[h][d][w] == True:
+                            iter_places.append((h, d, w))
+            random.shuffle(iter_places)
+            for i in range(0, len(iter_places) - 1, 2):
+                try: 
+                    key = keys.pop()
+                except IndexError:
+                    break
+                h1, d1, w1 = iter_places[i]
+                h2, d2, w2 = iter_places[i + 1]
+                print(h1, d1, w1, "(!)")
+                print(h2, d2, w2, "(!)")
+                self._matrix[h1][d1][w1] = Tile(self.screen, 
+                                            WIDTH // 2 - TILE_WIDTH * self.size[0] // 4 + TILE_WIDTH * w1 - TILE_HEIGHT * h1, 
+                                            HEIGHT // 2 - TILE_DEPTH * self.size[1] // 4 + TILE_DEPTH * d1 - TILE_HEIGHT * h1 - 100,
                                             key, "Dark")
+                self._matrix[h2][d2][w2] = Tile(self.screen, 
+                                            WIDTH // 2 - TILE_WIDTH * self.size[0] // 4 + TILE_WIDTH * w2 - TILE_HEIGHT * h2, 
+                                            HEIGHT // 2 - TILE_DEPTH * self.size[1] // 4 + TILE_DEPTH * d2 - TILE_HEIGHT * h2 - 100,
+                                            key, "Dark")
+                
+            
         
     def print(self) -> None:
         print(len(self._matrix), len(self._matrix[0]), len(self._matrix[0][0]))
         for h in range(self.size[2]):
             for d in range(self.size[1]):
-                print(self._matrix[h][d])
+                line = []
+                for w in range(self.size[0]):
+                    match self._matrix[h][d][w]:
+                        case False:
+                            line.append(' ')
+                        case True:
+                            line.append('1')
+                        case _:
+                            line.append('2')
+                print(" ".join(line))  
             print("\n") 
     
     def draw(self, pos) -> tuple[Tile, tuple[int, int, int]] | tuple[None, None]:

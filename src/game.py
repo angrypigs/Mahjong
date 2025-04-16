@@ -11,10 +11,8 @@ class Game(Screen):
     def __init__(self, screen) -> None:
         super().__init__(screen)
         self.matrix = tileMatrix(self.screen, (BOARD_WIDTH, BOARD_DEPTH, BOARD_HEIGHT))
-        board = [[[bool((i % 6 == 0 or i % 6 == 2) and j % 2 == 0 and i < 18 and j < 12) for i in range(BOARD_WIDTH * 2 - 1)]
-                  for j in range(BOARD_DEPTH * 2 - 1)]
-                 for k in range(BOARD_HEIGHT)]
-        self.matrix.generate_board(board)
+        
+        self.matrix.generate_board(MODEL2)
         self.bg = pygame.Surface((WIDTH, HEIGHT))
         self.bg.blit(TILES_TEXTURES["bg"], (0, 0))
         self.selected_tile: Tile | None = None

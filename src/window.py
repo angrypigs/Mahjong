@@ -30,6 +30,10 @@ class Window:
                 elif event.type == pygame.MOUSEBUTTONUP:
                     if event.button == 1:
                         self.current_screen.release_left()
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE:
+                        self.current_screen.matrix.generate_board(MODEL2)
+                        
                         
                                 
             self.current_screen.draw(self.pos)
