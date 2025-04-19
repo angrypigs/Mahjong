@@ -70,15 +70,26 @@ class Button:
 class Screen:
     def __init__(self, screen: pygame.Surface) -> None:
         self.screen = screen
+        self._buttons: list[Button] = []
+        self._hovered_button: int | None = None
+        self._pressed_button: int | None = None
 
     def draw(self, pos: tuple[int, int]) -> None:
-        raise NotImplementedError()
+        self._hovered_button = None
+        for i, button in enumerate(self._buttons):
+            if button.draw(pos):
+                self._hovered_button = i
     
     def press_left(self) -> None:
-        print("lol")
+        self._pressed_button = self._hovered_button
     
-    def release_left(self) -> None:
-        print("lol")
+    def release_left(self) -> int | None:
+        res = None
+        if self._hovered_button == self._pressed_button and self._hovered_button is not None:
+            res = self._hovered_button
+        self._pressed_button = None
+        self._hovered_button = None
+        return res
         
 
 def res_path(rel_path: str) -> str:
@@ -101,6 +112,10 @@ TILES_TEXTURES : dict[str, dict[str, pygame.Surface]] = {
 def init_assets() -> None:
     TILES_TEXTURES["bg"] = pygame.transform.smoothscale(
         pygame.image.load(os.path.join(res_path("assets/Background & Shadow"), "Background Green.png")), (WIDTH, HEIGHT))
+    for filename in os.listdir(res_path("assets/Buttons")):
+        key = filename.removesuffix(".png")
+        image_path = os.path.join(res_path("assets/Buttons"), filename)
+        TILES_TEXTURES[key] = pygame.transform.smoothscale(pygame.image.load(image_path), (80, 80))
     for filename in os.listdir(res_path("assets/Dark Theme")):
         if filename.startswith("Neutral"):
             key = filename.removeprefix("Neutral ").removesuffix(".png")

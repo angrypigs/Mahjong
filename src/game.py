@@ -19,13 +19,16 @@ class Game(Screen):
         self.pressed_tile: Tile | None = None
         self.hovered_tile: Tile | None = None
         self.hovered_coords: tuple[int, int, int] | None = None
+        self._buttons.append(Button(self.screen, 20, 20, 60, 60, "", TILES_TEXTURES["arrow_left"]))
         
     def draw(self, pos) -> None:
         self.screen.blit(self.bg, (0, 0))
         self.hovered_tile, self.hovered_coords = self.matrix.draw(pos)
+        super().draw(pos)
         
     def press_left(self) -> None:
         self.pressed_tile = self.hovered_tile
+        super().press_left()
     
     def release_left(self) -> None:
         if (self.pressed_tile == self.hovered_tile and self.hovered_tile is not None and
@@ -41,6 +44,7 @@ class Game(Screen):
                 self.selected_tile = None
         self.pressed_tile = None
         self.hovered_tile = None
+        return super().release_left()
         
     
         
