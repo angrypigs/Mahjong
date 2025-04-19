@@ -30,62 +30,59 @@ class tileMatrix:
         random.shuffle(keys)
         self._matrix = deepcopy(places)
         self.quantity = len(keys) * 2
-        for i in range(len(keys)):
-            iter_places = []
-            counter = 0
-            for h in range(self.size[2]):
-                for d in range(self.size[1]):
-                    for w in range(self.size[0]):
-                        if self._matrix[h][d][w] == True and self.can_be_placed((h, d, w)):
-                            counter += 1
-                            h1 = self.__neighbor_counter((h, d, w)) if self.can_be_removed((h, d, w)) else -1
-                            h2 = 2 * (self.size[2] - h)
-                            iter_places.append(((h, d, w), h1 + h2))
-            best_places = []
-            for p in sorted(iter_places, key=lambda x: x[1], reverse=True):
-                if len(best_places) < 2 or p[1] == best_places[0][1]:
-                    best_places.append(p)
-                else:
-                    break
-            key = keys.pop()
-            try:
-                for p in random.sample(best_places, 2):
-                    h, d, w = p[0]
-                    self._matrix[h][d][w] = Tile(self.screen, 
-                                                WIDTH // 2 - TILE_WIDTH * self.size[0] // 4 + TILE_WIDTH * w - TILE_HEIGHT * h, 
-                                                HEIGHT // 2 - TILE_DEPTH * self.size[1] // 4 + TILE_DEPTH * d - TILE_HEIGHT * h - 100,
-                                                key, "Dark")
-            except ValueError:
-                print(best_places)
-                keys.append(key)
-        if keys:
-            iter_places = []
-            for h in range(self.size[2]):
+        counter = len(keys)
+        coords = []
+        err_blocks = []
+        while counter > 0:
+            new_places = []
+            all_places = []
+            for h in reversed(range(self.size[2])):
                 for d in range(self.size[1]):
                     for w in range(self.size[0]):
                         if self._matrix[h][d][w] == True:
-                            iter_places.append((h, d, w))
-            random.shuffle(iter_places)
-            for i in range(0, len(iter_places) - 1, 2):
-                try: 
-                    key = keys.pop()
-                except IndexError:
-                    break
-                h1, d1, w1 = iter_places[i]
-                h2, d2, w2 = iter_places[i + 1]
-                print(h1, d1, w1, "(!)")
-                print(h2, d2, w2, "(!)")
-                self._matrix[h1][d1][w1] = Tile(self.screen, 
-                                            WIDTH // 2 - TILE_WIDTH * self.size[0] // 4 + TILE_WIDTH * w1 - TILE_HEIGHT * h1, 
-                                            HEIGHT // 2 - TILE_DEPTH * self.size[1] // 4 + TILE_DEPTH * d1 - TILE_HEIGHT * h1 - 100,
-                                            key, "Dark")
-                self._matrix[h2][d2][w2] = Tile(self.screen, 
-                                            WIDTH // 2 - TILE_WIDTH * self.size[0] // 4 + TILE_WIDTH * w2 - TILE_HEIGHT * h2, 
-                                            HEIGHT // 2 - TILE_DEPTH * self.size[1] // 4 + TILE_DEPTH * d2 - TILE_HEIGHT * h2 - 100,
-                                            key, "Dark")
-                
-            
+                            all_places.append((h, d, w))
+                            if self.can_be_removed((h, d, w), True):
+                                new_places.append((h, d, w))
+            try:
+                two_places = random.sample(new_places, 2)
+            except ValueError:
+                err_blocks = all_places.copy()
+                break
+            for h, d, w in two_places:
+                self._matrix[h][d][w] = False
+            two_places.append(keys.pop())
+            coords.append(two_places)
+            counter -= 1
+        if err_blocks:
+            print(len(coords))
+            other_blocks = []
+            err_coords = err_blocks[0][1:]
+            while len(err_blocks) != len(other_blocks):
+                b1, b2, key = coords.pop()
+                keys.append(key)
+                blocks = [b1, b2]
+                for b in blocks:
+                    if (b[1], b[2]) == err_coords:
+                        err_blocks.append(b)
+                    else:
+                        other_blocks.append(b)
+            err_blocks.sort(key=lambda x: x[0], reverse=True)
+            other_blocks.sort(key=lambda x: x[0], reverse=True)
+            for i in range(len(err_blocks)):
+                coords.append((err_blocks[i], other_blocks[i], keys.pop()))
+            print(len(coords))
+        for c in coords:
+            (h1, d1, w1), (h2, d2, w2), key = c
+            self._matrix[h1][d1][w1] = Tile(self.screen, 
+                                        WIDTH // 2 - TILE_WIDTH * self.size[0] // 4 + TILE_WIDTH * w1 - TILE_HEIGHT * h1, 
+                                        HEIGHT // 2 - TILE_DEPTH * self.size[1] // 4 + TILE_DEPTH * d1 - TILE_HEIGHT * h1 - 100,
+                                        key, "Dark")
+            self._matrix[h2][d2][w2] = Tile(self.screen, 
+                                        WIDTH // 2 - TILE_WIDTH * self.size[0] // 4 + TILE_WIDTH * w2 - TILE_HEIGHT * h2, 
+                                        HEIGHT // 2 - TILE_DEPTH * self.size[1] // 4 + TILE_DEPTH * d2 - TILE_HEIGHT * h2 - 100,
+                                        key, "Dark")
         
+     
     def print(self) -> None:
         print(len(self._matrix), len(self._matrix[0]), len(self._matrix[0][0]))
         for h in range(self.size[2]):
@@ -138,11 +135,13 @@ class tileMatrix:
                         break
         if side_counter == 2:
             return False
-        for row_add in range(-1, 2):
-            for col_add in range(-1, 2):
-                if in_bounds(h + 1, d + row_add, w + col_add, self.size[2], self.size[1], self.size[0]):
-                    if isinstance(self._matrix[h + 1][d + row_add][w + col_add], Tile):
-                        return False
+        for h_add in range(1, self.size[2] - h):
+            for row_add in range(-1, 2):
+                for col_add in range(-1, 2):
+                    if in_bounds(h + h_add, d + row_add, w + col_add, self.size[2], self.size[1], self.size[0]):
+                        if (isinstance(self._matrix[h + h_add][d + row_add][w + col_add], Tile) or
+                            true_included and self._matrix[h + h_add][d + row_add][w + col_add] == True):
+                            return False
         return True
     
     def can_be_placed(self, coords: tuple[int, int, int]) -> bool:

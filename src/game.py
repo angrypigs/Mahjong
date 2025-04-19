@@ -42,6 +42,10 @@ class Game(Screen):
                 else:
                     self.selected_tile.selected = False
                 self.selected_tile = None
+        elif self.selected_tile is not None and (self.hovered_coords is None or 
+                                                 not self.matrix.can_be_removed(self.hovered_coords)):
+            self.selected_tile.selected = False
+            self.selected_tile = None
         self.pressed_tile = None
         self.hovered_tile = None
         return super().release_left()
