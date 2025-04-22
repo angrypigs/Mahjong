@@ -33,6 +33,21 @@ class tileMatrix:
         counter = len(keys)
         coords = []
         err_blocks = []
+        self.limits_x = [self.size[0] - 1, 0]
+        self.limits_y = [self.size[1] - 1, 0]
+        for h in range(self.size[2]):
+            for d in range(self.size[1]):
+                for w in range(self.size[0]):
+                    if places[h][d][w]:
+                        if w < self.limits_x[0]:
+                            self.limits_x[0] = w
+                        if w > self.limits_x[1]:
+                            self.limits_x[1] = w
+                        if d < self.limits_y[0]:
+                            self.limits_y[0] = d
+                        if d > self.limits_y[1]:
+                            self.limits_y[1] = d
+        print(self.limits_x, self.limits_y)
         while counter > 0:
             new_places = []
             all_places = []
@@ -72,15 +87,11 @@ class tileMatrix:
                 coords.append((err_blocks[i], other_blocks[i], keys.pop()))
             print(len(coords))
         for c in coords:
-            (h1, d1, w1), (h2, d2, w2), key = c
-            self._matrix[h1][d1][w1] = Tile(self.screen, 
-                                        WIDTH // 2 - TILE_WIDTH * self.size[0] // 4 + TILE_WIDTH * w1 - TILE_HEIGHT * h1, 
-                                        HEIGHT // 2 - TILE_DEPTH * self.size[1] // 4 + TILE_DEPTH * d1 - TILE_HEIGHT * h1 - 100,
-                                        key, "Dark")
-            self._matrix[h2][d2][w2] = Tile(self.screen, 
-                                        WIDTH // 2 - TILE_WIDTH * self.size[0] // 4 + TILE_WIDTH * w2 - TILE_HEIGHT * h2, 
-                                        HEIGHT // 2 - TILE_DEPTH * self.size[1] // 4 + TILE_DEPTH * d2 - TILE_HEIGHT * h2 - 100,
-                                        key, "Dark")
+            c1, c2, key = c
+            for h, d, w in (c1, c2):
+                x = WIDTH // 2 - ((self.limits_x[1] - self.limits_x[0]) // 2 - w) * TILE_WIDTH - TILE_HEIGHT * h
+                y = HEIGHT // 2 - ((self.limits_y[1] - self.limits_y[0]) // 2 - d) * TILE_DEPTH - TILE_HEIGHT * h
+                self._matrix[h][d][w] = Tile(self.screen, x, y, key, "Dark")
         
      
     def print(self) -> None:

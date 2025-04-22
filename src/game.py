@@ -12,7 +12,7 @@ class Game(Screen):
         super().__init__(screen)
         self.matrix = tileMatrix(self.screen, (BOARD_WIDTH, BOARD_DEPTH, BOARD_HEIGHT))
         
-        self.matrix.generate_board(MODEL2)
+        self.matrix.generate_board(MODEL3)
         self.bg = pygame.Surface((WIDTH, HEIGHT))
         self.bg.blit(TILES_TEXTURES["bg"], (0, 0))
         self.selected_tile: Tile | None = None

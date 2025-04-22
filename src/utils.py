@@ -17,15 +17,28 @@ TILE_WIDTH = 100 * SCALE_FACTOR[0] // SCALE_FACTOR[1]
 TILE_DEPTH = 133 * SCALE_FACTOR[0] // SCALE_FACTOR[1]
 TILE_HEIGHT = 16 * SCALE_FACTOR[0] // SCALE_FACTOR[1]
 
-
 BTN_COLOR = (40, 40, 40)
 BTN_COLOR_ACTIVE = (70, 70, 70)
+
+CLICK_STATES = {
+    "title": {
+        0: "game",
+        1: "game"
+    },
+    "game": {
+        0: "title"
+    }
+}
 
 MODEL1 = [[[bool((i % 6 == 0 or i % 6 == 2) and j % 2 == 0 and i < 18 and j < 12) for i in range(BOARD_WIDTH * 2 - 1)]
                   for j in range(BOARD_DEPTH * 2 - 1)]
                  for k in range(BOARD_HEIGHT)]
 
 MODEL2 = [[[bool(i % 2 == 0 and j % 2 == 0 and i < 12 and j < 12) for i in range(BOARD_WIDTH * 2 - 1)]
+                  for j in range(BOARD_DEPTH * 2 - 1)]
+                 for k in range(BOARD_HEIGHT)]
+
+MODEL3 = [[[bool(i % 4 == 0 and j % 2 == 0 and i < 23 and j < 12) for i in range(BOARD_WIDTH * 2 - 1)]
                   for j in range(BOARD_DEPTH * 2 - 1)]
                  for k in range(BOARD_HEIGHT)]
 
