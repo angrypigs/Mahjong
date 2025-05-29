@@ -11,11 +11,11 @@ BOARD_WIDTH = 15
 BOARD_DEPTH = 8
 BOARD_HEIGHT = 5
 
-SCALE_FACTOR = (1, 3)
+SCALE_FACTOR = (2, 7)
 
 TILE_WIDTH = 100 * SCALE_FACTOR[0] // SCALE_FACTOR[1]
 TILE_DEPTH = 133 * SCALE_FACTOR[0] // SCALE_FACTOR[1]
-TILE_HEIGHT = 16 * SCALE_FACTOR[0] // SCALE_FACTOR[1]
+TILE_HEIGHT = 14 * SCALE_FACTOR[0] // SCALE_FACTOR[1]
 
 BTN_COLOR = (40, 40, 40)
 BTN_COLOR_ACTIVE = (70, 70, 70)
@@ -23,7 +23,7 @@ BTN_COLOR_ACTIVE = (70, 70, 70)
 CLICK_STATES = {
     "title": {
         0: "game",
-        1: "game"
+        1: "editor"
     },
     "game": {
         0: "title"
@@ -125,6 +125,19 @@ TILES_TEXTURES : dict[str, dict[str, pygame.Surface]] = {
 def init_assets() -> None:
     TILES_TEXTURES["bg"] = pygame.transform.smoothscale(
         pygame.image.load(os.path.join(res_path("assets/Background & Shadow"), "Background Green.png")), (WIDTH, HEIGHT))
+    for name in ["editor_point"]:
+        image = pygame.image.load(res_path(f"assets/Other/{name}.png"))
+        width, height = image.get_size()
+        TILES_TEXTURES[name] = pygame.transform.smoothscale(image, (width * SCALE_FACTOR[0] // SCALE_FACTOR[1], 
+                                                                        height * SCALE_FACTOR[0] // SCALE_FACTOR[1]))
+    image = pygame.image.load(res_path(f"assets/Dark Theme/Neutral Blank.png"))
+    width, height = image.get_size()
+    TILES_TEXTURES["blank_dark"] = pygame.transform.smoothscale(image, (width * SCALE_FACTOR[0] // SCALE_FACTOR[1], 
+                                                                    height * SCALE_FACTOR[0] // SCALE_FACTOR[1]))
+    image = pygame.image.load(res_path(f"assets/Light Theme/Neutral Blank.png"))
+    width, height = image.get_size()
+    TILES_TEXTURES["blank_light"] = pygame.transform.smoothscale(image, (width * SCALE_FACTOR[0] // SCALE_FACTOR[1], 
+                                                                    height * SCALE_FACTOR[0] // SCALE_FACTOR[1]))
     for filename in os.listdir(res_path("assets/Buttons")):
         key = filename.removesuffix(".png")
         image_path = os.path.join(res_path("assets/Buttons"), filename)

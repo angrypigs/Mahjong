@@ -7,23 +7,42 @@ class Tile:
     
     def __init__(self, screen: pygame.Surface, 
                  x: int, y: int,
-                 tile_type: str,
-                 color: str) -> None:
+                 tile_type: str = "",
+                 color: str = "Dark",
+                 _special_type: str = "",
+                 info: str = "",
+                 counts: bool = True) -> None:
         self.screen = screen
+        self.counts = counts
         self.type = tile_type
+        self._special = _special_type
         self.color = color
+        self.info = info
         self.coords = pygame.math.Vector2(x, y)
-        self.rect = TILES_TEXTURES[self.color][tile_type].get_rect(topleft=self.coords)
+        if self._special:
+            self.rect = TILES_TEXTURES[self._special].get_rect(topleft=self.coords)
+        else:
+            self.rect = TILES_TEXTURES[self.color][tile_type].get_rect(topleft=self.coords)
         self.selected = False
         
     def __str__(self) -> str:
-        return f"Tile {self.coords.x} {self.coords.y} {self.type}"
+        return f"Tile {self.coords.x} {self.coords.y} {self.type} {self.info}"
         
     def draw(self, pos) -> bool:
         is_over = self.rect.collidepoint(pos)
         color = self.color + ("Selected" if is_over or self.selected else "")
-        self.screen.blit(TILES_TEXTURES[color][self.type], self.coords)
+        self.screen.blit(TILES_TEXTURES[color][self.type] if not self._special else 
+                         TILES_TEXTURES[self._special], self.coords)
         return is_over
+    
+    @property
+    def special(self) -> str:
+        return self._special
+    
+    @special.setter
+    def special(self, val) -> None:
+        print(f"new val: {val}")
+        self._special = val
         
     
     

@@ -19,42 +19,44 @@ class tileMatrix:
         self.screen = screen
         self.quantity = 0
         self.size = (size[0] * 2 - 1, size[1] * 2 - 1, size[2])
+        self.limits_x = [(self.size[0] - 1) // 2, 0]
+        self.limits_y = [(self.size[1] - 1) // 2, 0]
         print(self.size)
-        self._matrix : list[list[list[Tile | bool]]] = [[[False for _ in range(self.size[0])]
+        self.matrix : list[list[list[Tile | bool]]] = [[[False for _ in range(self.size[0])]
                                                         for _ in range(self.size[1])]
                                                        for _ in range(self.size[2])]
         
     def generate_board(self, places: list[list[list[bool]]]) -> None:
         keys = list(TILES_TEXTURES["Dark"].keys())
         keys = [x for x in keys for _ in range(2)]
+        print(keys)
         random.shuffle(keys)
-        self._matrix = deepcopy(places)
+        self.matrix = deepcopy(places)
         self.quantity = len(keys) * 2
         counter = len(keys)
         coords = []
         err_blocks = []
-        self.limits_x = [self.size[0] - 1, 0]
-        self.limits_y = [self.size[1] - 1, 0]
-        for h in range(self.size[2]):
-            for d in range(self.size[1]):
-                for w in range(self.size[0]):
-                    if places[h][d][w]:
-                        if w < self.limits_x[0]:
-                            self.limits_x[0] = w
-                        if w > self.limits_x[1]:
-                            self.limits_x[1] = w
-                        if d < self.limits_y[0]:
-                            self.limits_y[0] = d
-                        if d > self.limits_y[1]:
-                            self.limits_y[1] = d
-        print(self.limits_x, self.limits_y)
+        # self.limits_x = [self.size[0] - 1, 0]
+        # self.limits_y = [self.size[1] - 1, 0]
+        # for h in range(self.size[2]):
+        #     for d in range(self.size[1]):
+        #         for w in range(self.size[0]):
+        #             if places[h][d][w]:
+        #                 if w < self.limits_x[0]:
+        #                     self.limits_x[0] = w
+        #                 if w > self.limits_x[1]:
+        #                     self.limits_x[1] = w
+        #                 if d < self.limits_y[0]:
+        #                     self.limits_y[0] = d
+        #                 if d > self.limits_y[1]:
+        #                     self.limits_y[1] = d
         while counter > 0:
             new_places = []
             all_places = []
             for h in reversed(range(self.size[2])):
                 for d in range(self.size[1]):
                     for w in range(self.size[0]):
-                        if self._matrix[h][d][w] == True:
+                        if self.matrix[h][d][w] == True:
                             all_places.append((h, d, w))
                             if self.can_be_removed((h, d, w), True):
                                 new_places.append((h, d, w))
@@ -64,7 +66,7 @@ class tileMatrix:
                 err_blocks = all_places.copy()
                 break
             for h, d, w in two_places:
-                self._matrix[h][d][w] = False
+                self.matrix[h][d][w] = False
             two_places.append(keys.pop())
             coords.append(two_places)
             counter -= 1
@@ -89,20 +91,17 @@ class tileMatrix:
         for c in coords:
             c1, c2, key = c
             for h, d, w in (c1, c2):
-                x = WIDTH // 2 - ((self.limits_x[1] - self.limits_x[0]) // 2 - w) * TILE_WIDTH - TILE_HEIGHT * h
-                y = HEIGHT // 2 - ((self.limits_y[1] - self.limits_y[0]) // 2 - d) * TILE_DEPTH - TILE_HEIGHT * h
-                self._matrix[h][d][w] = Tile(self.screen, x, y, key, "Dark")
-        
+                self.place_tile(h, d, w, key, info=f"{h} {d} {w}")
      
     def print(self) -> None:
-        print(len(self._matrix), len(self._matrix[0]), len(self._matrix[0][0]))
+        print(len(self.matrix), len(self.matrix[0]), len(self.matrix[0][0]))
         for h in range(self.size[2]):
             for d in range(self.size[1]):
                 line = []
                 for w in range(self.size[0]):
-                    match self._matrix[h][d][w]:
+                    match self.matrix[h][d][w]:
                         case False:
-                            line.append(' ')
+                            line.append('0')
                         case True:
                             line.append('1')
                         case _:
@@ -110,14 +109,15 @@ class tileMatrix:
                 print(" ".join(line))  
             print("\n") 
     
-    def draw(self, pos) -> tuple[Tile, tuple[int, int, int]] | tuple[None, None]:
+    def draw(self, pos, layers: list[int] | None = None
+             ) -> tuple[Tile, tuple[int, int, int]] | tuple[None, None]:
         over = [None, None]
-        for h in range(self.size[2]):
+        for h in range(self.size[2]) if layers is None else layers:
             for d in range(self.size[1]):
                 for w in range(self.size[0]):
-                    if type(self._matrix[h][d][w]) == Tile:
-                        if self._matrix[h][d][w].draw(pos):
-                            over = (self._matrix[h][d][w], (h, d, w))
+                    if type(self.matrix[h][d][w]) == Tile:
+                        if self.matrix[h][d][w].draw(pos):
+                            over = (self.matrix[h][d][w], (h, d, w))
         return over
     
     def remove_tiles(self, tiles: list[Tile]) -> None:
@@ -126,12 +126,20 @@ class tileMatrix:
             for d in range(self.size[1]):
                 for w in range(self.size[0]):
                     for tile in tiles:
-                        if tile == self._matrix[h][d][w]:
-                            self._matrix[h][d][w] = True
+                        if tile == self.matrix[h][d][w]:
+                            self.matrix[h][d][w] = True
                             tiles.remove(tile)
                             if not tiles:
                                 self.quantity -= q
                                 return
+                            
+    def place_tile(self, h: int, d: int, w: int,
+                   key: str = "1-a", color: str = "Dark", 
+                   special: str = "", info: str = "",
+                   counts: bool = True) -> None:
+        x = WIDTH // 2 - (-self.size[0] // 2 + 2 + w) * TILE_WIDTH - TILE_HEIGHT * h
+        y = HEIGHT // 2 - (-self.size[1] // 2 + 2 + d) * TILE_DEPTH - TILE_HEIGHT * h
+        self.matrix[h][d][w] = Tile(self.screen, x, y, key, color, special, info, counts)
     
     def can_be_removed(self, coords: tuple[int, int, int],
                        true_included: bool = False) -> bool:
@@ -140,8 +148,8 @@ class tileMatrix:
         for col_w in [w - 2, w + 2]:
             for row_add in range(-1, 2):
                 if in_bounds(h, d + row_add, col_w, self.size[2], self.size[1], self.size[0]):
-                    if (isinstance(self._matrix[h][d + row_add][col_w], Tile) or
-                        true_included and self._matrix[h][d + row_add][col_w] == True):
+                    if (isinstance(self.matrix[h][d + row_add][col_w], Tile) or
+                        true_included and self.matrix[h][d + row_add][col_w] == True):
                         side_counter += 1
                         break
         if side_counter == 2:
@@ -150,8 +158,8 @@ class tileMatrix:
             for row_add in range(-1, 2):
                 for col_add in range(-1, 2):
                     if in_bounds(h + h_add, d + row_add, w + col_add, self.size[2], self.size[1], self.size[0]):
-                        if (isinstance(self._matrix[h + h_add][d + row_add][w + col_add], Tile) or
-                            true_included and self._matrix[h + h_add][d + row_add][w + col_add] == True):
+                        if (isinstance(self.matrix[h + h_add][d + row_add][w + col_add], Tile) or
+                            true_included and self.matrix[h + h_add][d + row_add][w + col_add] == True):
                             return False
         return True
     
@@ -160,14 +168,16 @@ class tileMatrix:
         for row_add in range(-1, 2):
             for col_add in range(-1, 2):
                 if in_bounds(h, d + col_add, w + row_add, self.size[2], self.size[1], self.size[0]):
-                    if isinstance(self._matrix[h][d + col_add][w + row_add], Tile):
+                    if (isinstance(self.matrix[h][d + col_add][w + row_add], Tile) and 
+                        not self.matrix[h][d + col_add][w + row_add].special):
                         return False
         if h == 0:
             return True
         for row_add in range(-1, 2):
             for col_add in range(-1, 2):
                 if in_bounds(h - 1, d + col_add, w + row_add, self.size[2], self.size[1], self.size[0]):
-                    if isinstance(self._matrix[h - 1][d + col_add][w + row_add], Tile):
+                    if (isinstance(self.matrix[h - 1][d + col_add][w + row_add], Tile) and
+                        not self.matrix[h - 1][d + col_add][w + row_add].special):
                         return True
         return False
     
@@ -177,7 +187,7 @@ class tileMatrix:
         for col_w in [w - 2, w + 2]:
             for row_add in range(-1, 2):
                 if in_bounds(h, d + row_add, col_w, self.size[2], self.size[1], self.size[0]):
-                    if isinstance(self._matrix[h][d + row_add][col_w], Tile):
+                    if isinstance(self.matrix[h][d + row_add][col_w], Tile):
                         counter += 1
         return counter
         

@@ -3,6 +3,7 @@ import pygame
 from src.utils import *
 from src.game import Game
 from src.title_screen import titleScreen
+from src.level_editor import levelEditor
 
 
 
@@ -46,3 +47,5 @@ class Window:
                     self.current_screen = titleScreen(self.screen)
                 case "game":
                     self.current_screen = Game(self.screen)
+                case "editor":
+                    self.current_screen = levelEditor(self.screen)
