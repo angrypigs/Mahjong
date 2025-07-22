@@ -145,19 +145,19 @@ def init_assets() -> None:
     for filename in os.listdir(res_path("assets/Dark Theme")):
         if filename.startswith("Neutral"):
             key = filename.removeprefix("Neutral ").removesuffix(".png")
-            if key != "Blank":
-                image_path = os.path.join(res_path("assets/Dark Theme"), filename)
-                image = pygame.image.load(image_path)
-                width, height = image.get_size()
-                scaled_image = pygame.transform.smoothscale(image, (width * SCALE_FACTOR[0] // SCALE_FACTOR[1], 
-                                                                    height * SCALE_FACTOR[0] // SCALE_FACTOR[1]))
-                TILES_TEXTURES["Dark"][key] = scaled_image
+            # if key != "Blank":
+            image_path = os.path.join(res_path("assets/Dark Theme"), filename)
+            image = pygame.image.load(image_path)
+            width, height = image.get_size()
+            scaled_image = pygame.transform.smoothscale(image, (width * SCALE_FACTOR[0] // SCALE_FACTOR[1], 
+                                                                height * SCALE_FACTOR[0] // SCALE_FACTOR[1]))
+            TILES_TEXTURES["Dark"][key] = scaled_image
         elif filename.startswith("Selected"):
             key = filename.removeprefix("Selected ").removesuffix(".png")
-            if key != "Blank":
-                image_path = os.path.join(res_path("assets/Dark Theme"), filename)
-                image = pygame.image.load(image_path)
-                width, height = image.get_size()
-                scaled_image = pygame.transform.smoothscale(image, (width * SCALE_FACTOR[0] // SCALE_FACTOR[1], 
-                                                                    height * SCALE_FACTOR[0] // SCALE_FACTOR[1]))
-                TILES_TEXTURES["DarkSelected"][key] = scaled_image
+            # if key != "Blank":
+            image_path = os.path.join(res_path("assets/Dark Theme"), filename)
+            image = pygame.image.load(image_path)
+            width, height = image.get_size()
+            scaled_image = pygame.transform.smoothscale(image, (width * SCALE_FACTOR[0] // SCALE_FACTOR[1], 
+                                                                height * SCALE_FACTOR[0] // SCALE_FACTOR[1]))
+            TILES_TEXTURES["DarkSelected"][key] = scaled_image

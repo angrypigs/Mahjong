@@ -27,7 +27,7 @@ class tileMatrix:
                                                        for _ in range(self.size[2])]
         
     def generate_board(self, places: list[list[list[bool]]]) -> None:
-        keys = list(TILES_TEXTURES["Dark"].keys())
+        keys = [x for x in TILES_TEXTURES["Dark"].keys() if x != "Blank"]
         keys = [x for x in keys for _ in range(2)]
         print(keys)
         random.shuffle(keys)

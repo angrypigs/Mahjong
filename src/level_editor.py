@@ -33,10 +33,11 @@ class levelEditor(Screen):
         
     def release_left(self):
         if (self.pressed_tile == self.hovered_tile and self.hovered_tile is not None):
+            h, d, w = self.hovered_coords
             if self.matrix.can_be_placed(self.hovered_coords):
-                h, d, w = self.hovered_coords
-                self.matrix.matrix[h][d][w].special = "blank_dark"
+                self.matrix.matrix[h][d][w].type = "Blank"
                 self.matrix.matrix[h][d][w].counts = True
+                self.matrix.matrix[h][d][w].special = ""
                 for row in range(-1, 2):
                     for col in range(-1, 2):
                         if in_bounds(h, d + col, w + row, 
@@ -46,6 +47,18 @@ class levelEditor(Screen):
                             tile = self.matrix.matrix[h][d + col][w + row]
                             if isinstance(tile, Tile):
                                 self.matrix.matrix[h][d + col][w + row] = False
+            elif self.matrix.matrix[h][d][w].special == "":
+                self.matrix.place_tile(h, d, w, special="editor_point", counts=False)
+                for row in range(1, -2, -1):
+                    for col in range(1, -2, -1):
+                        if in_bounds(h, d + col, w + row, 
+                                  self.matrix.size[2], 
+                                  self.matrix.size[1], 
+                                  self.matrix.size[0]):
+                            tile = self.matrix.matrix[h][d + col][w + row]
+                            if ((row, col) != (0, 0) and tile == False and 
+                                self.matrix.can_be_placed((h, d + col, w + row))):
+                                self.matrix.place_tile(h, d + col, w + row, special="editor_point", counts=False)
         self.pressed_tile = None
         self.hovered_tile = None
         super().release_left()

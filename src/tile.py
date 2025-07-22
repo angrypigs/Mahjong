@@ -53,9 +53,12 @@ class Tile:
         return self._special
     
     @special.setter
-    def special(self, val) -> None:
-        print(f"new val: {val}")
+    def special(self, val: str) -> None:
         self._special = val
+        if val:
+            self.rect = TILES_TEXTURES[self._special].get_rect(topleft=self.coords)
+        else:
+            self.rect = TILES_TEXTURES[self.color][self.type].get_rect(topleft=self.coords)
         
     
     
