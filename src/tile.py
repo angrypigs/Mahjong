@@ -12,6 +12,19 @@ class Tile:
                  _special_type: str = "",
                  info: str = "",
                  counts: bool = True) -> None:
+        """
+        Tile init
+
+        Args:
+            screen (Surface): origin screen.
+            x (int): world x.
+            y (int): world y.
+            tile_type (str): tile name from file.
+            color (str): color mode, "Dark" | "Light".
+            _special_type (str): name of the texture to not take from Dark / Light.
+            info (str): opt. info.
+            counts (bool): internal flag, for specific uses.
+        """
         self.screen = screen
         self.counts = counts
         self.type = tile_type

@@ -128,8 +128,8 @@ def init_assets() -> None:
     for name in ["editor_point"]:
         image = pygame.image.load(res_path(f"assets/Other/{name}.png"))
         width, height = image.get_size()
-        TILES_TEXTURES[name] = pygame.transform.smoothscale(image, (width * SCALE_FACTOR[0] // SCALE_FACTOR[1], 
-                                                                        height * SCALE_FACTOR[0] // SCALE_FACTOR[1]))
+        TILES_TEXTURES[name] = pygame.transform.smoothscale(image, (width * SCALE_FACTOR[0] // SCALE_FACTOR[1] // 2, 
+                                                                        height * SCALE_FACTOR[0] // SCALE_FACTOR[1] // 2))
     image = pygame.image.load(res_path(f"assets/Dark Theme/Neutral Blank.png"))
     width, height = image.get_size()
     TILES_TEXTURES["blank_dark"] = pygame.transform.smoothscale(image, (width * SCALE_FACTOR[0] // SCALE_FACTOR[1], 

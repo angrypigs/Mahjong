@@ -111,6 +111,16 @@ class tileMatrix:
     
     def draw(self, pos, layers: list[int] | None = None
              ) -> tuple[Tile, tuple[int, int, int]] | tuple[None, None]:
+        """
+        Draws the matrix
+    
+        Args:
+            pos: cursor position
+            layers (list[int] | None): optional list of indexes of layers to be shown
+            
+        Returns:
+            tuple[Tile, tuple[int, int, int]] | tuple[None, None]: Tile and it's coords if one's under cursor, None vals oth.
+        """
         over = [None, None]
         for h in range(self.size[2]) if layers is None else layers:
             for d in range(self.size[1]):
