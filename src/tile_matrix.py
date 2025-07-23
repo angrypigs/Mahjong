@@ -29,7 +29,7 @@ class tileMatrix:
     def generate_board(self, places: list[list[list[bool]]]) -> None:
         keys = [x for x in TILES_TEXTURES["Dark"].keys() if x != "Blank"]
         keys = [x for x in keys for _ in range(2)]
-        print(keys)
+        # print(keys)
         random.shuffle(keys)
         self.matrix = deepcopy(places)
         self.quantity = len(keys) * 2

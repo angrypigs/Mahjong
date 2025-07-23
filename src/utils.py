@@ -27,6 +27,9 @@ CLICK_STATES = {
     },
     "game": {
         0: "title"
+    },
+    "editor": {
+        0: "title"
     }
 }
 

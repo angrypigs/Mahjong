@@ -21,6 +21,7 @@ class levelEditor(Screen):
         self.pressed_tile: Tile | None = None
         self.hovered_tile: Tile | None = None
         self.hovered_coords: tuple[int, int, int] | None = None
+        self._buttons.append(Button(self.screen, 20, 20, 60, 60, "", TILES_TEXTURES["arrow_left"]))
         
     def draw(self, pos) -> None:
         self.screen.blit(self.bg, (0, 0))
@@ -61,6 +62,6 @@ class levelEditor(Screen):
                                 self.matrix.place_tile(h, d + col, w + row, special="editor_point", counts=False)
         self.pressed_tile = None
         self.hovered_tile = None
-        super().release_left()
+        return super().release_left()
         
     
