@@ -123,10 +123,10 @@ class tileMatrix:
         """
         over = [None, None]
         for h in range(self.size[2]) if layers is None else layers:
-            for d in range(self.size[1]):
-                for w in range(self.size[0]):
+            for d in range(self.size[1] - 1, -1, -1):
+                for w in range(self.size[0] - 1, -1, -1):
                     if type(self.matrix[h][d][w]) == Tile:
-                        if self.matrix[h][d][w].draw(pos):
+                        if self.matrix[h][d][w].draw(pos, (over[1] is None or abs(w - over[1][2]) != 2)):
                             over = (self.matrix[h][d][w], (h, d, w))
         return over
     

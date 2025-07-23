@@ -41,11 +41,12 @@ class Tile:
     def __str__(self) -> str:
         return f"Tile {self.coords.x} {self.coords.y} {self.type} {self.info}"
         
-    def draw(self, pos) -> bool:
+    def draw(self, pos, sel: bool = True) -> bool:
         is_over = self.rect.collidepoint(pos)
-        color = self.color + ("Selected" if is_over or self.selected else "")
+        color = self.color + ("Selected" if (is_over or self.selected) and sel else "")
         self.screen.blit(TILES_TEXTURES[color][self.type] if not self._special else 
                          TILES_TEXTURES[self._special], self.coords)
+        # pygame.draw.rect(self.screen, (255, 0, 0), self.rect, 1) # debug
         return is_over
     
     @property
