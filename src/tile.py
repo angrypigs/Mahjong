@@ -43,7 +43,7 @@ class Tile:
         
     def draw(self, pos, sel: bool = True) -> bool:
         is_over = self.rect.collidepoint(pos)
-        color = self.color + ("Selected" if (is_over or self.selected) and sel else "")
+        color = self.color + ("Selected" if (is_over and sel or self.selected) else "")
         self.screen.blit(TILES_TEXTURES[color][self.type] if not self._special else 
                          TILES_TEXTURES[self._special], self.coords)
         # pygame.draw.rect(self.screen, (255, 0, 0), self.rect, 1) # debug

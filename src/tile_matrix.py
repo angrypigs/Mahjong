@@ -21,6 +21,7 @@ class tileMatrix:
         self.size = (size[0] * 2 - 1, size[1] * 2 - 1, size[2])
         self.limits_x = [(self.size[0] - 1) // 2, 0]
         self.limits_y = [(self.size[1] - 1) // 2, 0]
+        self._top_tiles: list[tuple[int, int, int]] = []
         print(self.size)
         self.matrix : list[list[list[Tile | bool]]] = [[[False for _ in range(self.size[0])]
                                                         for _ in range(self.size[1])]
@@ -91,7 +92,8 @@ class tileMatrix:
         for c in coords:
             c1, c2, key = c
             for h, d, w in (c1, c2):
-                self.place_tile(h, d, w, key, info=f"{h} {d} {w}")
+                self.place_tile(h, d, w, key, info=f"{h} {d} {w}", should_update=False)
+        self.update_top_tiles()
      
     def print(self) -> None:
         print(len(self.matrix), len(self.matrix[0]), len(self.matrix[0][0]))
@@ -109,7 +111,7 @@ class tileMatrix:
                 print(" ".join(line))  
             print("\n") 
     
-    def draw(self, pos, layers: list[int] | None = None
+    def draw(self, pos, layers: list[int] | None = None, active: bool = True
              ) -> tuple[Tile, tuple[int, int, int]] | tuple[None, None]:
         """
         Draws the matrix
@@ -117,16 +119,28 @@ class tileMatrix:
         Args:
             pos: cursor position
             layers (list[int] | None): optional list of indexes of layers to be shown
+            active (bool): whether tiles should react to cursor
             
         Returns:
             tuple[Tile, tuple[int, int, int]] | tuple[None, None]: Tile and it's coords if one's under cursor, None vals oth.
         """
         over = [None, None]
+        flag = None
+        for h in range(self.size[2] - 1, -1, -1) if layers is None else sorted(layers, reverse=True):
+            if flag is not None: break
+            for d in range(self.size[1] - 1, -1, -1):
+                if flag is not None: break
+                for w in range(self.size[0] - 1, -1, -1):
+                    tile = self.matrix[h][d][w]
+                    if isinstance(tile, Tile) and tile.rect.collidepoint(pos):
+                        flag = (h, d, w)
+                        break
         for h in range(self.size[2]) if layers is None else layers:
             for d in range(self.size[1] - 1, -1, -1):
                 for w in range(self.size[0] - 1, -1, -1):
                     if type(self.matrix[h][d][w]) == Tile:
-                        if self.matrix[h][d][w].draw(pos, (over[1] is None or abs(w - over[1][2]) != 2)):
+                        if self.matrix[h][d][w].draw(pos, 
+                            (flag == (h, d, w)) and active and (h, d, w) in self._top_tiles):
                             over = (self.matrix[h][d][w], (h, d, w))
         return over
     
@@ -141,15 +155,18 @@ class tileMatrix:
                             tiles.remove(tile)
                             if not tiles:
                                 self.quantity -= q
+                                self.update_top_tiles()
                                 return
                             
     def place_tile(self, h: int, d: int, w: int,
                    key: str = "1-a", color: str = "Dark", 
                    special: str = "", info: str = "",
-                   counts: bool = True) -> None:
+                   counts: bool = True,
+                   should_update: bool = True) -> None:
         x = WIDTH // 2 - (-self.size[0] // 2 + 2 + w) * TILE_WIDTH - TILE_HEIGHT * h
         y = HEIGHT // 2 - (-self.size[1] // 2 + 2 + d) * TILE_DEPTH - TILE_HEIGHT * h
         self.matrix[h][d][w] = Tile(self.screen, x, y, key, color, special, info, counts)
+        if should_update: self.update_top_tiles()
     
     def can_be_removed(self, coords: tuple[int, int, int],
                        true_included: bool = False) -> bool:
@@ -190,6 +207,14 @@ class tileMatrix:
                         not self.matrix[h - 1][d + col_add][w + row_add].special):
                         return True
         return False
+    
+    def update_top_tiles(self) -> None:
+        self._top_tiles = []
+        for h in range(self.size[2] - 1, -1, -1):
+            for d in range(self.size[1] - 1, -1, -1):
+                for w in range(self.size[0] - 1, -1, -1):
+                    if self.can_be_removed((h, d, w)):
+                        self._top_tiles.append((h, d, w))
     
     def __neighbor_counter(self, coords: tuple[int, int, int]) -> int:
         h, d, w = coords
