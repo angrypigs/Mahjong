@@ -19,8 +19,8 @@ class tileMatrix:
         self.screen = screen
         self.quantity = 0
         self.size = (size[0] * 2 - 1, size[1] * 2 - 1, size[2])
-        self.limits_x = [(self.size[0] - 1) // 2, 0]
-        self.limits_y = [(self.size[1] - 1) // 2, 0]
+        self.offset_x = 0
+        self.offset_y = 0
         self._top_tiles: list[tuple[int, int, int]] = []
         print(self.size)
         self.matrix : list[list[list[Tile | bool]]] = [[[False for _ in range(self.size[0])]
@@ -35,22 +35,9 @@ class tileMatrix:
         self.matrix = deepcopy(places)
         self.quantity = len(keys) * 2
         counter = len(keys)
+        self.__center_tile_matrix(places)
         coords = []
         err_blocks = []
-        # self.limits_x = [self.size[0] - 1, 0]
-        # self.limits_y = [self.size[1] - 1, 0]
-        # for h in range(self.size[2]):
-        #     for d in range(self.size[1]):
-        #         for w in range(self.size[0]):
-        #             if places[h][d][w]:
-        #                 if w < self.limits_x[0]:
-        #                     self.limits_x[0] = w
-        #                 if w > self.limits_x[1]:
-        #                     self.limits_x[1] = w
-        #                 if d < self.limits_y[0]:
-        #                     self.limits_y[0] = d
-        #                 if d > self.limits_y[1]:
-        #                     self.limits_y[1] = d
         while counter > 0:
             new_places = []
             all_places = []
@@ -125,22 +112,12 @@ class tileMatrix:
             tuple[Tile, tuple[int, int, int]] | tuple[None, None]: Tile and it's coords if one's under cursor, None vals oth.
         """
         over = [None, None]
-        flag = None
-        for h in range(self.size[2] - 1, -1, -1) if layers is None else sorted(layers, reverse=True):
-            if flag is not None: break
-            for d in range(self.size[1] - 1, -1, -1):
-                if flag is not None: break
-                for w in range(self.size[0] - 1, -1, -1):
-                    tile = self.matrix[h][d][w]
-                    if isinstance(tile, Tile) and tile.rect.collidepoint(pos):
-                        flag = (h, d, w)
-                        break
         for h in range(self.size[2]) if layers is None else layers:
             for d in range(self.size[1] - 1, -1, -1):
                 for w in range(self.size[0] - 1, -1, -1):
                     if type(self.matrix[h][d][w]) == Tile:
                         if self.matrix[h][d][w].draw(pos, 
-                            (flag == (h, d, w)) and active and (h, d, w) in self._top_tiles):
+                            active and (h, d, w) in self._top_tiles):
                             over = (self.matrix[h][d][w], (h, d, w))
         return over
     
@@ -163,8 +140,8 @@ class tileMatrix:
                    special: str = "", info: str = "",
                    counts: bool = True,
                    should_update: bool = True) -> None:
-        x = WIDTH // 2 - (-self.size[0] // 2 + 2 + w) * TILE_WIDTH - TILE_HEIGHT * h
-        y = HEIGHT // 2 - (-self.size[1] // 2 + 2 + d) * TILE_DEPTH - TILE_HEIGHT * h
+        x = w * TILE_WIDTH + self.offset_x - TILE_HEIGHT * h
+        y = d * TILE_DEPTH + self.offset_y - TILE_HEIGHT * h
         self.matrix[h][d][w] = Tile(self.screen, x, y, key, color, special, info, counts)
         if should_update: self.update_top_tiles()
     
@@ -225,4 +202,26 @@ class tileMatrix:
                     if isinstance(self.matrix[h][d + row_add][col_w], Tile):
                         counter += 1
         return counter
+    
+    def __center_tile_matrix(self, places: list[list[list[bool]]]) -> None:
+        limits_x = [self.size[0] - 1, 0]
+        limits_y = [self.size[1] - 1, 0]
+        for h in range(self.size[2]):
+            for d in range(self.size[1]):
+                for w in range(self.size[0]):
+                    if places[h][d][w]:
+                        if w < limits_x[0]:
+                            limits_x[0] = w
+                        if w > limits_x[1]:
+                            limits_x[1] = w
+                        if d < limits_y[0]:
+                            limits_y[0] = d
+                        if d > limits_y[1]:
+                            limits_y[1] = d
+        w = limits_x[1] - limits_x[0]
+        d = limits_y[1] - limits_y[0]
+        center_x = (limits_x[0] + w / 2) * TILE_WIDTH
+        center_y = (limits_y[0] + d / 2) * TILE_DEPTH
+        self.offset_x = WIDTH / 2 - center_x
+        self.offset_y = HEIGHT / 2 - center_y
         
