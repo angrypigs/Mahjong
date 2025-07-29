@@ -66,33 +66,35 @@ class Button:
         self.img = pygame.transform.scale(img, (width, height)) if img is not None else None
         self.color = BTN_COLOR if color is None else color
         self.color_active = BTN_COLOR_ACTIVE if color is None else tuple([x + 40 for x in color])
+        self.active = True
 
     def draw(self, cursor_pos) -> bool:
-        pygame.draw.rect(self.screen, 
-                         self.color_active if self._cursor_flag else self.color, 
-                         self.rect, border_radius=10)
-        text_surface = self.font.render(self.text, True, (204, 204, 204))
-        text_rect = text_surface.get_rect(center=self.rect.center)
-        self.screen.blit(text_surface, text_rect)
-        if self.img is not None:
-            self.screen.blit(self.img, (self.rect))
-        if self.rect.collidepoint(cursor_pos):
-            self._cursor_flag = True
-            return True
-        else:
-            self._cursor_flag = False
-            return False
+        if self.active:
+            pygame.draw.rect(self.screen, 
+                            self.color_active if self._cursor_flag else self.color, 
+                            self.rect, border_radius=10)
+            text_surface = self.font.render(self.text, True, (204, 204, 204))
+            text_rect = text_surface.get_rect(center=self.rect.center)
+            self.screen.blit(text_surface, text_rect)
+            if self.img is not None:
+                self.screen.blit(self.img, (self.rect))
+            if self.rect.collidepoint(cursor_pos):
+                self._cursor_flag = True
+                return True
+            else:
+                self._cursor_flag = False
+                return False
         
 class Screen:
     def __init__(self, screen: pygame.Surface) -> None:
         self.screen = screen
-        self._buttons: list[Button] = []
+        self.buttons: list[Button] = []
         self._hovered_button: int | None = None
         self._pressed_button: int | None = None
 
     def draw(self, pos: tuple[int, int]) -> None:
         self._hovered_button = None
-        for i, button in enumerate(self._buttons):
+        for i, button in enumerate(self.buttons):
             if button.draw(pos):
                 self._hovered_button = i
     

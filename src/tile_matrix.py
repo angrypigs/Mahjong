@@ -35,7 +35,7 @@ class tileMatrix:
         self.matrix = deepcopy(places)
         self.quantity = len(keys) * 2
         counter = len(keys)
-        self.__center_tile_matrix(places)
+        self.center_tile_matrix(places)
         coords = []
         err_blocks = []
         while counter > 0:
@@ -203,13 +203,13 @@ class tileMatrix:
                         counter += 1
         return counter
     
-    def __center_tile_matrix(self, places: list[list[list[bool]]]) -> None:
+    def center_tile_matrix(self, places: list[list[list[bool]]] | None = None) -> None:
         limits_x = [self.size[0] - 1, 0]
         limits_y = [self.size[1] - 1, 0]
         for h in range(self.size[2]):
             for d in range(self.size[1]):
                 for w in range(self.size[0]):
-                    if places[h][d][w]:
+                    if (self.matrix[h][d][w] if places is None else places[h][d][w]):
                         if w < limits_x[0]:
                             limits_x[0] = w
                         if w > limits_x[1]:
@@ -218,10 +218,10 @@ class tileMatrix:
                             limits_y[0] = d
                         if d > limits_y[1]:
                             limits_y[1] = d
-        w = limits_x[1] - limits_x[0]
-        d = limits_y[1] - limits_y[0]
-        center_x = (limits_x[0] + w / 2) * TILE_WIDTH
-        center_y = (limits_y[0] + d / 2) * TILE_DEPTH
+
+        center_x = (limits_x[0] + limits_x[1] + 1) / 2 * TILE_WIDTH
+        center_y = (limits_y[0] + limits_y[1] + 1) / 2 * TILE_DEPTH
+
         self.offset_x = WIDTH / 2 - center_x
         self.offset_y = HEIGHT / 2 - center_y
         

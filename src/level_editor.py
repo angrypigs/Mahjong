@@ -13,19 +13,27 @@ class levelEditor(Screen):
         self.bg = pygame.Surface((WIDTH, HEIGHT))
         self.bg.blit(TILES_TEXTURES["bg"], (0, 0))
         self.matrix = tileMatrix(self.screen, (BOARD_WIDTH, BOARD_DEPTH, BOARD_HEIGHT))
+        self.matrix.center_tile_matrix(
+            [[[True for i in range(BOARD_WIDTH * 2 - 1)] for j in range(BOARD_DEPTH * 2 - 1)] for k in range(BOARD_HEIGHT)]
+        )
         for h in range(self.matrix.size[2]):
             for d in range(self.matrix.size[1]):
                 for w in range(self.matrix.size[0]):
-                    self.matrix.place_tile(h, d, w, special="editor_point", info=f"{h} {d} {w}", counts=False)
+                    self.matrix.place_tile(h, d, w, special="editor_point", info=f"{h} {d} {w}", counts=False, should_update=False)
+        self.matrix.update_top_tiles()
+        self.matrix.print()
         self.current_layer = 0
         self.pressed_tile: Tile | None = None
         self.hovered_tile: Tile | None = None
         self.hovered_coords: tuple[int, int, int] | None = None
-        self._buttons.append(Button(self.screen, 20, 20, 60, 60, "", TILES_TEXTURES["arrow_left"]))
+        self.buttons.append(Button(self.screen, 20, 20, 60, 60, "", TILES_TEXTURES["arrow_left"]))
+        self.buttons.append(Button(self.screen, WIDTH - 80, HEIGHT // 2 - 70, 60, 60, "", TILES_TEXTURES["arrow_up"]))
+        self.buttons.append(Button(self.screen, WIDTH - 80, HEIGHT // 2 + 10, 60, 60, "", TILES_TEXTURES["arrow_down"]))
+        self.buttons[-1].active = False
         
     def draw(self, pos) -> None:
         self.screen.blit(self.bg, (0, 0))
-        self.hovered_tile, self.hovered_coords = self.matrix.draw(pos, layers=[self.current_layer])
+        self.hovered_tile, self.hovered_coords = self.matrix.draw(pos, layers=range(self.current_layer + 1))
         super().draw(pos)
         
     def press_left(self):
@@ -62,6 +70,15 @@ class levelEditor(Screen):
                                 self.matrix.place_tile(h, d + col, w + row, special="editor_point", counts=False)
         self.pressed_tile = None
         self.hovered_tile = None
-        return super().release_left()
+        key = super().release_left()
+        if key == 1: # up
+            self.current_layer = min(self.current_layer + 1, BOARD_HEIGHT - 1)
+            self.buttons[-2].active = not (self.current_layer == BOARD_HEIGHT - 1)
+            self.buttons[-1].active = not (self.current_layer == 0)
+        elif key == 2: # down
+            self.current_layer = max(self.current_layer - 1, 0)
+            self.buttons[-2].active = not (self.current_layer == BOARD_HEIGHT - 1)
+            self.buttons[-1].active = not (self.current_layer == 0)
+        return 0 if key == 0 else None
         
     
