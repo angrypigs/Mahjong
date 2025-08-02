@@ -63,7 +63,7 @@ class Button:
         self.text = text
         self.font = pygame.font.Font(None, 44)
         self._cursor_flag = False
-        self.img = pygame.transform.scale(img, (width, height)) if img is not None else None
+        self.img = pygame.transform.smoothscale(img, (width, height)) if img is not None else None
         self.color = BTN_COLOR if color is None else color
         self.color_active = BTN_COLOR_ACTIVE if color is None else tuple([x + 40 for x in color])
         self.active = True

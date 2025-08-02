@@ -28,7 +28,7 @@ class tileMatrix:
                                                        for _ in range(self.size[2])]
         
     def generate_board(self, places: list[list[list[bool]]]) -> None:
-        keys = [x for x in TILES_TEXTURES["Dark"].keys() if x != "Blank"]
+        keys = [x for x in TILES_TEXTURES["Dark"].keys() if x not in ["Blank", "Blocked"]]
         keys = [x for x in keys for _ in range(2)]
         # print(keys)
         random.shuffle(keys)
@@ -98,7 +98,9 @@ class tileMatrix:
                 print(" ".join(line))  
             print("\n") 
     
-    def draw(self, pos, layers: list[int] | None = None, active: bool = True
+    def draw(self, pos, layers: list[int] | None = None, 
+             active: list[int] | None = None,
+             show_special: list[int] | None = None
              ) -> tuple[Tile, tuple[int, int, int]] | tuple[None, None]:
         """
         Draws the matrix
@@ -112,12 +114,18 @@ class tileMatrix:
             tuple[Tile, tuple[int, int, int]] | tuple[None, None]: Tile and it's coords if one's under cursor, None vals oth.
         """
         over = [None, None]
+        if active is None:
+            active = list(range(self.size[2]))
+        if show_special is None:
+            show_special = list(range(self.size[2]))
         for h in range(self.size[2]) if layers is None else layers:
+            flag_active = (h in active)
+            flag_special = (h in show_special)
             for d in range(self.size[1] - 1, -1, -1):
                 for w in range(self.size[0] - 1, -1, -1):
-                    if type(self.matrix[h][d][w]) == Tile:
+                    if type(self.matrix[h][d][w]) == Tile and (not self.matrix[h][d][w].special or flag_special):
                         if self.matrix[h][d][w].draw(pos, 
-                            active and (h, d, w) in self._top_tiles):
+                            flag_active and (h, d, w) in self._top_tiles):
                             over = (self.matrix[h][d][w], (h, d, w))
         return over
     

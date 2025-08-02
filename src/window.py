@@ -41,11 +41,14 @@ class Window:
             
     def __click_handler(self, click_index: int | None) -> None:
         if click_index is not None:
-            self.game_mode = CLICK_STATES[self.game_mode][click_index]
-            match self.game_mode:
-                case "title":
-                    self.current_screen = titleScreen(self.screen)
-                case "game":
-                    self.current_screen = Game(self.screen)
-                case "editor":
-                    self.current_screen = levelEditor(self.screen)
+            try:
+                self.game_mode = CLICK_STATES[self.game_mode][click_index]
+                match self.game_mode:
+                    case "title":
+                        self.current_screen = titleScreen(self.screen)
+                    case "game":
+                        self.current_screen = Game(self.screen)
+                    case "editor":
+                        self.current_screen = levelEditor(self.screen)
+            except Exception as e:
+                print(f"Warning: {e}")

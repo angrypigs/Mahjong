@@ -33,7 +33,10 @@ class levelEditor(Screen):
         
     def draw(self, pos) -> None:
         self.screen.blit(self.bg, (0, 0))
-        self.hovered_tile, self.hovered_coords = self.matrix.draw(pos, layers=range(self.current_layer + 1))
+        self.hovered_tile, self.hovered_coords = self.matrix.draw(pos, 
+            layers=range(self.current_layer + 1), 
+            active=[self.current_layer],
+            show_special=[self.current_layer])
         super().draw(pos)
         
     def press_left(self):
@@ -41,6 +44,7 @@ class levelEditor(Screen):
         super().press_left()
         
     def release_left(self):
+        # tile input action
         if (self.pressed_tile == self.hovered_tile and self.hovered_tile is not None):
             h, d, w = self.hovered_coords
             if self.matrix.can_be_placed(self.hovered_coords):
@@ -71,14 +75,32 @@ class levelEditor(Screen):
         self.pressed_tile = None
         self.hovered_tile = None
         key = super().release_left()
+        # input actions (up / down)
         if key == 1: # up
             self.current_layer = min(self.current_layer + 1, BOARD_HEIGHT - 1)
             self.buttons[-2].active = not (self.current_layer == BOARD_HEIGHT - 1)
             self.buttons[-1].active = not (self.current_layer == 0)
+            for d in range(self.matrix.size[1]):
+                for w in range(self.matrix.size[0]):
+                    tile = self.matrix.matrix[self.current_layer][d][w]
+                    tile_lower = self.matrix.matrix[self.current_layer - 1][d][w]
+                    if isinstance(tile, Tile) and not tile.special:
+                        tile.type = "Blank"
+                    elif self.matrix.can_be_placed((self.current_layer, d, w)):
+                        self.matrix.place_tile(self.current_layer, d, w, special="editor_point", counts=False)
+                    else:
+                        self.matrix.matrix[self.current_layer][d][w] = False
+                    if isinstance(tile_lower, Tile) and not tile_lower.special:
+                        tile_lower.type = "Blocked"
         elif key == 2: # down
             self.current_layer = max(self.current_layer - 1, 0)
             self.buttons[-2].active = not (self.current_layer == BOARD_HEIGHT - 1)
             self.buttons[-1].active = not (self.current_layer == 0)
+            for d in range(self.matrix.size[1]):
+                for w in range(self.matrix.size[0]):
+                    tile = self.matrix.matrix[self.current_layer][d][w]
+                    if isinstance(tile, Tile) and not tile.special:
+                        tile.type = "Blank"
         return 0 if key == 0 else None
         
     
