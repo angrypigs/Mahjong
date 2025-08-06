@@ -86,8 +86,8 @@ class levelEditor(Screen):
                     tile_lower = self.matrix.matrix[self.current_layer - 1][d][w]
                     if isinstance(tile, Tile) and not tile.special:
                         tile.type = "Blank"
-                    elif self.matrix.can_be_placed((self.current_layer, d, w)):
-                        self.matrix.place_tile(self.current_layer, d, w, special="editor_point", counts=False)
+                    elif self.matrix.can_be_placed((self.current_layer, d, w), both_cons=False):
+                        self.matrix.place_tile(self.current_layer, d, w, special="editor_point", counts=False, should_update=False)
                     else:
                         self.matrix.matrix[self.current_layer][d][w] = False
                     if isinstance(tile_lower, Tile) and not tile_lower.special:

@@ -175,16 +175,17 @@ class tileMatrix:
                             return False
         return True
     
-    def can_be_placed(self, coords: tuple[int, int, int]) -> bool:
+    def can_be_placed(self, coords: tuple[int, int, int], both_cons: bool = True) -> bool:
         h, d, w = coords
-        for row_add in range(-1, 2):
-            for col_add in range(-1, 2):
-                if in_bounds(h, d + col_add, w + row_add, self.size[2], self.size[1], self.size[0]):
-                    if (isinstance(self.matrix[h][d + col_add][w + row_add], Tile) and 
-                        not self.matrix[h][d + col_add][w + row_add].special):
-                        return False
-        if h == 0:
-            return True
+        if both_cons:
+            for row_add in range(-1, 2):
+                for col_add in range(-1, 2):
+                    if in_bounds(h, d + col_add, w + row_add, self.size[2], self.size[1], self.size[0]):
+                        if (isinstance(self.matrix[h][d + col_add][w + row_add], Tile) and 
+                            not self.matrix[h][d + col_add][w + row_add].special):
+                            return False
+            if h == 0:
+                return True
         for row_add in range(-1, 2):
             for col_add in range(-1, 2):
                 if in_bounds(h - 1, d + col_add, w + row_add, self.size[2], self.size[1], self.size[0]):
