@@ -212,7 +212,8 @@ class tileMatrix:
                         counter += 1
         return counter
     
-    def center_tile_matrix(self, places: list[list[list[bool]]] | None = None) -> None:
+    def center_tile_matrix(self, places: list[list[list[bool]]] | None = None,
+                           middle: tuple[int, int] = (WIDTH // 2, HEIGHT // 2)) -> None:
         limits_x = [self.size[0] - 1, 0]
         limits_y = [self.size[1] - 1, 0]
         for h in range(self.size[2]):
@@ -231,6 +232,6 @@ class tileMatrix:
         center_x = (limits_x[0] + limits_x[1] + 1) / 2 * TILE_WIDTH
         center_y = (limits_y[0] + limits_y[1] + 1) / 2 * TILE_DEPTH
 
-        self.offset_x = WIDTH / 2 - center_x
-        self.offset_y = HEIGHT / 2 - center_y
+        self.offset_x = middle[0] - center_x
+        self.offset_y = middle[1] - center_y
         

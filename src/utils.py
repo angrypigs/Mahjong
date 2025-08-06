@@ -2,6 +2,7 @@ import pygame
 
 import os
 import sys
+from typing import Optional, Literal
 
 HEIGHT = 700
 WIDTH = 1000
@@ -84,6 +85,54 @@ class Button:
             else:
                 self._cursor_flag = False
                 return False
+           
+Alignment = Literal[
+    "center", "topleft", "topcenter", 
+    "midleft", "midright", "bottomleft", 
+    "bottomright", "bottomcenter"
+]
+            
+class Font:
+    
+    def __init__(self, parent, text: str, size: int, 
+                 x: int, y: int, 
+                 color: tuple[int, int, int],
+                 align: Alignment = "center") -> None:
+        self.parent = parent
+        self.align = align
+        self.text = text
+        self.size = size
+        self.x = x
+        self.y = y
+        self.color = color
+        self.font: pygame.Surface = self.parent.fonts[size].render(self.text, True, self.color)
+        self.rect = self._get_rect()
+        
+    def _get_rect(self) -> pygame.Rect:
+        rect = self.font.get_rect()
+        setattr(rect, self.align, (self.x, self.y))
+        return rect
+        
+    def update(self, text: Optional[str] = None,
+               x: Optional[int] = None,
+               y: Optional[int] = None,
+               size: Optional[int] = None,
+               color: Optional[tuple[int, int, int]] = None) -> None:
+        if text is not None:
+            self.text = text
+        if x is not None:
+            self.x = x
+        if y is not None:
+            self.y = y
+        if size is not None:
+            self.size = size
+        if color is not None:
+            self.color = color
+        self.font: pygame.Surface = self.parent.fonts[self.size].render(self.text, True, self.color)
+        self.rect = self._get_rect()
+        
+    def draw(self, screen: pygame.Surface) -> None:
+        screen.blit(self.font, self.rect)
         
 class Screen:
     def __init__(self, screen: pygame.Surface) -> None:
@@ -91,12 +140,29 @@ class Screen:
         self.buttons: list[Button] = []
         self._hovered_button: int | None = None
         self._pressed_button: int | None = None
+        self.fonts: dict[int, pygame.font.Font] = {}
+        self.texts: dict[str, Font] = {}
+        
+    def add_text(self, 
+                 name: str,
+                 size: int,
+                 x: int, 
+                 y: int, 
+                 text: str,
+                 color: tuple[int, int, int] = (0, 0, 0),
+                 align: Alignment = "center"
+        ) -> None:
+        if size not in self.fonts.keys():
+            self.fonts[size] = pygame.font.Font(None, size)
+        self.texts[name] = Font(self, text, size, x, y, color, align)
 
     def draw(self, pos: tuple[int, int]) -> None:
         self._hovered_button = None
         for i, button in enumerate(self.buttons):
             if button.draw(pos):
                 self._hovered_button = i
+        for f in self.texts.values():
+            f.draw(self.screen)
     
     def press_left(self) -> None:
         self._pressed_button = self._hovered_button
