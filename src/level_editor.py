@@ -82,7 +82,9 @@ class levelEditor(Screen):
                             tile = self.matrix.matrix[h][d + col][w + row]
                             if isinstance(tile, Tile):
                                 self.matrix.matrix[h][d + col][w + row] = False
-            elif self.matrix.matrix[h][d][w].special == "" and h == self.current_layer:
+            elif (self.matrix.matrix[h][d][w].special == "" and 
+                  h == self.current_layer and
+                  self.matrix.can_be_removed((h, d, w), both_cons=False)):
                 self.matrix.place_tile(h, d, w, special="editor_point", counts=False)
                 self.counter -= 1
                 for row in range(1, -2, -1):

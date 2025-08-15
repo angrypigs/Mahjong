@@ -121,8 +121,8 @@ class tileMatrix:
         for h in range(self.size[2]) if layers is None else layers:
             flag_active = (h in active)
             flag_special = (h in show_special)
-            for d in range(self.size[1] - 1, -1, -1):
-                for w in range(self.size[0] - 1, -1, -1):
+            for d in range(self.size[1]):
+                for w in range(self.size[0]):
                     if type(self.matrix[h][d][w]) == Tile and (not self.matrix[h][d][w].special or flag_special):
                         if self.matrix[h][d][w].draw(pos, 
                             flag_active and (h, d, w) in self._top_tiles):
@@ -154,25 +154,28 @@ class tileMatrix:
         if should_update: self.update_top_tiles()
     
     def can_be_removed(self, coords: tuple[int, int, int],
-                       true_included: bool = False) -> bool:
+                       true_included: bool = False,
+                       both_cons = True) -> bool:
         h, d, w = coords
-        side_counter = 0
-        for col_w in [w - 2, w + 2]:
-            for row_add in range(-1, 2):
-                if in_bounds(h, d + row_add, col_w, self.size[2], self.size[1], self.size[0]):
-                    if (isinstance(self.matrix[h][d + row_add][col_w], Tile) or
-                        true_included and self.matrix[h][d + row_add][col_w] == True):
-                        side_counter += 1
-                        break
-        if side_counter == 2:
-            return False
-        for h_add in range(1, self.size[2] - h):
-            for row_add in range(-1, 2):
-                for col_add in range(-1, 2):
-                    if in_bounds(h + h_add, d + row_add, w + col_add, self.size[2], self.size[1], self.size[0]):
-                        if (isinstance(self.matrix[h + h_add][d + row_add][w + col_add], Tile) or
-                            true_included and self.matrix[h + h_add][d + row_add][w + col_add] == True):
-                            return False
+        if both_cons:
+            side_counter = 0
+            for col_w in [w - 2, w + 2]:
+                for row_add in range(-1, 2):
+                    if in_bounds(h, d + row_add, col_w, self.size[2], self.size[1], self.size[0]):
+                        tile = self.matrix[h][d + row_add][col_w]
+                        if (isinstance(tile, Tile) and tile.special == "" or
+                            true_included and tile == True):
+                            side_counter += 1
+                            break
+            if side_counter == 2:
+                return False
+        for row_add in range(-1, 2):
+            for col_add in range(-1, 2):
+                if in_bounds(h + 1, d + row_add, w + col_add, self.size[2], self.size[1], self.size[0]):
+                    tile = self.matrix[h + 1][d + row_add][w + col_add]
+                    if (isinstance(tile, Tile) and tile.special == "" or
+                        true_included and tile == True):
+                        return False
         return True
     
     def can_be_placed(self, coords: tuple[int, int, int], both_cons: bool = True) -> bool:
@@ -186,12 +189,25 @@ class tileMatrix:
                             return False
             if h == 0:
                 return True
-        for row_add in range(-1, 2):
-            for col_add in range(-1, 2):
+        for opt in (((0, 0), ), 
+                    ((-1, 0), (1, 0)), 
+                    ((0, -1), (0, 1)), 
+                    ((-1, -1), (-1, 1), (1, -1), (1, 1))):
+            flag = True
+            for row_add, col_add in opt:
                 if in_bounds(h - 1, d + col_add, w + row_add, self.size[2], self.size[1], self.size[0]):
-                    if (isinstance(self.matrix[h - 1][d + col_add][w + row_add], Tile) and
+                    if not (isinstance(self.matrix[h - 1][d + col_add][w + row_add], Tile) and
                         not self.matrix[h - 1][d + col_add][w + row_add].special):
-                        return True
+                        flag = False
+                        break
+            if flag:
+                return True
+        # for row_add in range(-1, 2):
+        #     for col_add in range(-1, 2):
+        #         if in_bounds(h - 1, d + col_add, w + row_add, self.size[2], self.size[1], self.size[0]):
+        #             if (isinstance(self.matrix[h - 1][d + col_add][w + row_add], Tile) and
+        #                 not self.matrix[h - 1][d + col_add][w + row_add].special):
+        #                 return True
         return False
     
     def update_top_tiles(self) -> None:
