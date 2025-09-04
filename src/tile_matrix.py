@@ -97,6 +97,10 @@ class tileMatrix:
                             line.append('2')
                 print(" ".join(line))  
             print("\n") 
+            
+    def to_str(self) -> str:
+        return ",".join([".".join(["".join(["1" if isinstance(t, Tile) and not t.special else "0" for t in r])
+                                   for r in l]) for l in self.matrix])
     
     def draw(self, pos, layers: list[int] | None = None, 
              active: list[int] | None = None,

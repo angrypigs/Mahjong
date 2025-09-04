@@ -1,3 +1,5 @@
+import json
+
 import pygame
 
 from src.utils import *
@@ -46,7 +48,13 @@ class Window:
             match self.game_mode:
                 case "title":
                     self.current_screen = titleScreen(self.screen)
-                case "level":
-                    self.current_screen = Game(self.screen)
                 case "editor":
                     self.current_screen = levelEditor(self.screen)
+                case _:
+                    if self.game_mode.startswith("level:"):
+                        level_path = ROAMING_PATH / "levels" / f"{self.game_mode[6:]}.json"
+                        with level_path.open('r', encoding='utf-8') as f:
+                            data = json.load(f)
+                            name = data["name"]
+                            model = [[[bool(int(z)) for z in list(y)] for y in x.split(".")] for x in data["matrix"].split(",")]
+                            self.current_screen = Game(self.screen, name, model)

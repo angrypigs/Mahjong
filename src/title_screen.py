@@ -12,7 +12,7 @@ class titleScreen(Screen):
         self.bg.blit(TILES_TEXTURES["bg"], (0, 0))
         w = 300
         h = 60
-        self.buttons["level"] = Button(self.screen, (WIDTH - w) // 2, (HEIGHT - h) // 2 - 50,
+        self.buttons["level:level"] = Button(self.screen, (WIDTH - w) // 2, (HEIGHT - h) // 2 - 50,
                                     w, h, "Play")
         self.buttons["editor"] = (Button(self.screen, (WIDTH - w) // 2, (HEIGHT - h) // 2 + 50,
                                     w, h, "Editor"))

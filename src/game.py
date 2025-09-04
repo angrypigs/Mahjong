@@ -8,11 +8,14 @@ from src.tile import Tile
 
 class Game(Screen):
     
-    def __init__(self, screen) -> None:
+    def __init__(self, 
+                 screen: pygame.Surface, 
+                 name: str,
+                 model: list[list[list[bool]]]) -> None:
         super().__init__(screen)
         self.matrix = tileMatrix(self.screen, (BOARD_WIDTH, BOARD_DEPTH, BOARD_HEIGHT))
         
-        self.matrix.generate_board(MODEL3)
+        self.matrix.generate_board(model)
         self.bg = pygame.Surface((WIDTH, HEIGHT))
         self.bg.blit(TILES_TEXTURES["bg"], (0, 0))
         self.selected_tile: Tile | None = None

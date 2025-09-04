@@ -3,6 +3,7 @@ import pygame
 import os
 import sys
 from typing import Optional, Literal
+from pathlib import Path
 
 HEIGHT = 700
 WIDTH = 1000
@@ -20,6 +21,11 @@ TILE_HEIGHT = 14 * SCALE_FACTOR[0] // SCALE_FACTOR[1]
 
 BTN_COLOR = (40, 40, 40)
 BTN_COLOR_ACTIVE = (70, 70, 70)
+
+if os.name == "nt":  # Windows
+    ROAMING_PATH = Path(os.environ['APPDATA']) / "MahjongPython"
+else:  # Linux / macOS
+    ROAMING_PATH = Path.home() / ".config" / "MahjongPython"
 
 CLICK_STATES = {
     "title": {
@@ -234,3 +240,5 @@ def init_assets() -> None:
                                                                 height * SCALE_FACTOR[0] // SCALE_FACTOR[1]))
             TILES_TEXTURES["DarkSelected"][key] = scaled_image
     TILES_TEXTURES["quantity"] = len([x for x in TILES_TEXTURES["Dark"].keys() if x not in ["Blank", "Blocked"]]) * 4
+    levels_path = ROAMING_PATH / "levels"
+    levels_path.mkdir(parents=True, exist_ok=True)

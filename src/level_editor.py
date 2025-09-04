@@ -1,3 +1,5 @@
+import json
+
 import pygame
 
 from src.utils import *
@@ -129,6 +131,22 @@ class levelEditor(Screen):
                     tile = self.matrix.matrix[self._current_layer][d][w]
                     if isinstance(tile, Tile) and not tile.special:
                         tile.type = "Blank"
+        elif key == "save":
+            base_name = "level"
+            file_path = ROAMING_PATH / "levels" / f"{base_name}.json"
+            counter = 1
+            while file_path.exists():
+                file_path = ROAMING_PATH / "levels" / f"{base_name}_{counter}.json"
+                counter += 1
+            data = {
+                "name": base_name,
+                "h": self.matrix.size[2],
+                "d": self.matrix.size[1],
+                "w": self.matrix.size[0],
+                "matrix": self.matrix.to_str()
+            }
+            with file_path.open('w', encoding='utf-8') as f:
+                json.dump(data, f, ensure_ascii=False, indent=4)
         return key
         
     
