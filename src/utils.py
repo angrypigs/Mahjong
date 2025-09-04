@@ -137,9 +137,9 @@ class Font:
 class Screen:
     def __init__(self, screen: pygame.Surface) -> None:
         self.screen = screen
-        self.buttons: list[Button] = []
-        self._hovered_button: int | None = None
-        self._pressed_button: int | None = None
+        self.buttons: dict[str, Button] = {}
+        self._hovered_button: str | None = None
+        self._pressed_button: str | None = None
         self.fonts: dict[int, pygame.font.Font] = {}
         self.texts: dict[str, Font] = {}
         
@@ -158,16 +158,16 @@ class Screen:
 
     def draw(self, pos: tuple[int, int]) -> None:
         self._hovered_button = None
-        for i, button in enumerate(self.buttons):
+        for key, button in self.buttons.items():
             if button.draw(pos):
-                self._hovered_button = i
+                self._hovered_button = key
         for f in self.texts.values():
             f.draw(self.screen)
     
     def press_left(self) -> None:
         self._pressed_button = self._hovered_button
     
-    def release_left(self) -> int | None:
+    def release_left(self) -> str | None:
         res = None
         if self._hovered_button == self._pressed_button and self._hovered_button is not None:
             res = self._hovered_button
@@ -190,7 +190,8 @@ TILES_TEXTURES : dict[str, dict[str, pygame.Surface]] = {
     "Dark": {},
     "DarkSelected": {},
     "Light": {},
-    "LightSelected": {}
+    "LightSelected": {},
+    "quantity": 0
 }
 
 def init_assets() -> None:
@@ -232,3 +233,4 @@ def init_assets() -> None:
             scaled_image = pygame.transform.smoothscale(image, (width * SCALE_FACTOR[0] // SCALE_FACTOR[1], 
                                                                 height * SCALE_FACTOR[0] // SCALE_FACTOR[1]))
             TILES_TEXTURES["DarkSelected"][key] = scaled_image
+    TILES_TEXTURES["quantity"] = len([x for x in TILES_TEXTURES["Dark"].keys() if x not in ["Blank", "Blocked"]]) * 4

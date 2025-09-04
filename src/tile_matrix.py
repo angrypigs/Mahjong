@@ -33,7 +33,7 @@ class tileMatrix:
         # print(keys)
         random.shuffle(keys)
         self.matrix = deepcopy(places)
-        self.quantity = len(keys) * 2
+        self.quantity = TILES_TEXTURES["quantity"]
         counter = len(keys)
         self.center_tile_matrix(places)
         coords = []

@@ -27,10 +27,12 @@ class levelEditor(Screen):
         self.pressed_tile: Tile | None = None
         self.hovered_tile: Tile | None = None
         self.hovered_coords: tuple[int, int, int] | None = None
-        self.buttons.append(Button(self.screen, 20, 20, 60, 60, "", TILES_TEXTURES["arrow_left"]))
-        self.buttons.append(Button(self.screen, WIDTH - 80, HEIGHT // 2 - 70, 60, 60, "", TILES_TEXTURES["arrow_up"]))
-        self.buttons.append(Button(self.screen, WIDTH - 80, HEIGHT // 2 + 10, 60, 60, "", TILES_TEXTURES["arrow_down"]))
-        self.buttons[-1].active = False
+        self.buttons["title"] = Button(self.screen, 20, 20, 60, 60, "", TILES_TEXTURES["arrow_left"])
+        self.buttons["layer_up"] = Button(self.screen, WIDTH - 80, HEIGHT // 2 - 70, 60, 60, "", TILES_TEXTURES["arrow_up"])
+        self.buttons["layer_down"] = Button(self.screen, WIDTH - 80, HEIGHT // 2 + 10, 60, 60, "", TILES_TEXTURES["arrow_down"])
+        self.buttons["save"] = Button(self.screen, WIDTH // 2 - 100, HEIGHT - 80, 200, 60, "Save pattern")
+        self.buttons["layer_down"].active = False
+        self.buttons["save"].active = False
         self.add_text("layer", 44, WIDTH // 2, 40, "Layer 0", (255, 255, 255))
         self.add_text("counter", 44, WIDTH - 20, 40, "Tiles: 0", (255, 255, 255), "midright")
 
@@ -68,7 +70,7 @@ class levelEditor(Screen):
         # tile input action
         if (self.pressed_tile == self.hovered_tile and self.hovered_tile is not None):
             h, d, w = self.hovered_coords
-            if self.matrix.can_be_placed(self.hovered_coords):
+            if self.matrix.can_be_placed(self.hovered_coords) and (self.counter < TILES_TEXTURES["quantity"]):
                 self.matrix.matrix[h][d][w].type = "Blank"
                 self.matrix.matrix[h][d][w].counts = True
                 self.matrix.matrix[h][d][w].special = ""
@@ -97,35 +99,36 @@ class levelEditor(Screen):
                             if ((row, col) != (0, 0) and tile == False and 
                                 self.matrix.can_be_placed((h, d + col, w + row))):
                                 self.matrix.place_tile(h, d + col, w + row, special="editor_point", counts=False)
+            self.buttons["save"].active = (self.counter == TILES_TEXTURES["quantity"])
         self.pressed_tile = None
         self.hovered_tile = None
         key = super().release_left()
         # input actions (up / down)
-        if key == 1: # up
+        if key == "layer_up": # up
             self.current_layer = min(self._current_layer + 1, BOARD_HEIGHT - 1)
-            self.buttons[-2].active = not (self._current_layer == BOARD_HEIGHT - 1)
-            self.buttons[-1].active = not (self._current_layer == 0)
+            self.buttons["layer_up"].active = not (self._current_layer == BOARD_HEIGHT - 1)
+            self.buttons["layer_down"].active = not (self._current_layer == 0)
             for d in range(self.matrix.size[1]):
                 for w in range(self.matrix.size[0]):
                     tile = self.matrix.matrix[self._current_layer][d][w]
                     tile_lower = self.matrix.matrix[self._current_layer - 1][d][w]
                     if isinstance(tile, Tile) and not tile.special:
                         tile.type = "Blank"
-                    elif self.matrix.can_be_placed((self._current_layer, d, w), both_cons=False):
+                    elif self.matrix.can_be_placed((self._current_layer, d, w)):
                         self.matrix.place_tile(self._current_layer, d, w, special="editor_point", counts=False, should_update=False)
                     else:
                         self.matrix.matrix[self._current_layer][d][w] = False
                     if isinstance(tile_lower, Tile) and not tile_lower.special:
                         tile_lower.type = "Blocked"
-        elif key == 2: # down
+        elif key == "layer_down": # down
             self.current_layer = max(self._current_layer - 1, 0)
-            self.buttons[-2].active = not (self._current_layer == BOARD_HEIGHT - 1)
-            self.buttons[-1].active = not (self._current_layer == 0)
+            self.buttons["layer_up"].active = not (self._current_layer == BOARD_HEIGHT - 1)
+            self.buttons["layer_down"].active = not (self._current_layer == 0)
             for d in range(self.matrix.size[1]):
                 for w in range(self.matrix.size[0]):
                     tile = self.matrix.matrix[self._current_layer][d][w]
                     if isinstance(tile, Tile) and not tile.special:
                         tile.type = "Blank"
-        return 0 if key == 0 else None
+        return key
         
     

@@ -19,7 +19,7 @@ class Game(Screen):
         self.pressed_tile: Tile | None = None
         self.hovered_tile: Tile | None = None
         self.hovered_coords: tuple[int, int, int] | None = None
-        self.buttons.append(Button(self.screen, 20, 20, 60, 60, "", TILES_TEXTURES["arrow_left"]))
+        self.buttons["title"] = Button(self.screen, 20, 20, 60, 60, "", TILES_TEXTURES["arrow_left"])
         self.matrix.print()
         
     def draw(self, pos) -> None:

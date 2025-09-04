@@ -39,16 +39,14 @@ class Window:
             pygame.display.flip()
             self.clock.tick(FPS)
             
-    def __click_handler(self, click_index: int | None) -> None:
+    def __click_handler(self, click_index: str | None) -> None:
+        print(click_index)
         if click_index is not None:
-            try:
-                self.game_mode = CLICK_STATES[self.game_mode][click_index]
-                match self.game_mode:
-                    case "title":
-                        self.current_screen = titleScreen(self.screen)
-                    case "game":
-                        self.current_screen = Game(self.screen)
-                    case "editor":
-                        self.current_screen = levelEditor(self.screen)
-            except Exception as e:
-                print(f"Warning: {e}")
+            self.game_mode = click_index
+            match self.game_mode:
+                case "title":
+                    self.current_screen = titleScreen(self.screen)
+                case "level":
+                    self.current_screen = Game(self.screen)
+                case "editor":
+                    self.current_screen = levelEditor(self.screen)
