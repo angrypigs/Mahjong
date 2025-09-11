@@ -1,4 +1,5 @@
 import json
+import uuid
 
 import pygame
 
@@ -140,7 +141,7 @@ class levelEditor(Screen):
                 counter += 1
             data = {
                 "name": base_name,
-                "uuid": base_name,
+                "uuid": str(uuid.uuid4()),
                 "h": self.matrix.size[2],
                 "d": self.matrix.size[1],
                 "w": self.matrix.size[0],
@@ -148,6 +149,7 @@ class levelEditor(Screen):
             }
             with file_path.open('w', encoding='utf-8') as f:
                 json.dump(data, f, ensure_ascii=False, indent=4)
+            return "title"
         return key
         
     
