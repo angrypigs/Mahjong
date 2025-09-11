@@ -140,6 +140,7 @@ class levelEditor(Screen):
                 counter += 1
             data = {
                 "name": base_name,
+                "uuid": base_name,
                 "h": self.matrix.size[2],
                 "d": self.matrix.size[1],
                 "w": self.matrix.size[0],

@@ -6,6 +6,8 @@ from src.utils import *
 from src.game import Game
 from src.title_screen import titleScreen
 from src.level_editor import levelEditor
+from src.level_choice import levelChoice
+from src.tile_matrix import tileMatrix
 
 
 
@@ -19,6 +21,7 @@ class Window:
         self.running = True
         self.game_mode = "title"
         init_assets()
+        self.__load_levels()
         self.current_screen : Screen = titleScreen(self.screen)
         self.pos = (0, 0)
         
@@ -41,6 +44,23 @@ class Window:
             pygame.display.flip()
             self.clock.tick(FPS)
             
+    def __load_levels(self) -> None:
+        matrix = tileMatrix(self.screen, (BOARD_WIDTH, BOARD_DEPTH, BOARD_HEIGHT))
+        for level in os.listdir(ROAMING_PATH / "levels"):
+            try:
+                p = ROAMING_PATH / "levels" / level
+                with p.open('r', encoding='utf-8') as f:
+                    data = json.load(f)
+                    name = data["name"]
+                    uuid = data["uuid"]
+                    model = [[[bool(int(z)) for z in list(y)] for y in x.split(".")] for x in data["matrix"].split(",")]
+                    miniature = pygame.transform.smoothscale(matrix.create_miniature(model, name), 
+                        (WIDTH // 4, HEIGHT // 4))
+                    LEVELS[uuid] = [model, miniature, name]
+            except Exception as e:
+                print(f"Error at level {level}: {e}")
+        
+            
     def __click_handler(self, click_index: str | None) -> None:
         print(click_index)
         if click_index is not None:
@@ -50,11 +70,10 @@ class Window:
                     self.current_screen = titleScreen(self.screen)
                 case "editor":
                     self.current_screen = levelEditor(self.screen)
+                case "choice":
+                    self.current_screen = levelChoice(self.screen)                  
                 case _:
                     if self.game_mode.startswith("level:"):
-                        level_path = ROAMING_PATH / "levels" / f"{self.game_mode[6:]}.json"
-                        with level_path.open('r', encoding='utf-8') as f:
-                            data = json.load(f)
-                            name = data["name"]
-                            model = [[[bool(int(z)) for z in list(y)] for y in x.split(".")] for x in data["matrix"].split(",")]
-                            self.current_screen = Game(self.screen, name, model)
+                        name = self.game_mode[6:]
+                        self.current_screen = Game(self.screen, name, LEVELS[name][0])
+                            

@@ -17,7 +17,10 @@ SCALE_FACTOR = (2, 8)
 
 TILE_WIDTH = 100 * SCALE_FACTOR[0] // SCALE_FACTOR[1]
 TILE_DEPTH = 133 * SCALE_FACTOR[0] // SCALE_FACTOR[1]
-TILE_HEIGHT = 14 * SCALE_FACTOR[0] // SCALE_FACTOR[1]
+TILE_HEIGHT = 16 * SCALE_FACTOR[0] // SCALE_FACTOR[1]
+
+ITEMS_PER_PAGE = 6
+ITEMS_PER_ROW = 3
 
 BTN_COLOR = (40, 40, 40)
 BTN_COLOR_ACTIVE = (70, 70, 70)
@@ -26,19 +29,8 @@ if os.name == "nt":  # Windows
     ROAMING_PATH = Path(os.environ['APPDATA']) / "MahjongPython"
 else:  # Linux / macOS
     ROAMING_PATH = Path.home() / ".config" / "MahjongPython"
-
-CLICK_STATES = {
-    "title": {
-        0: "game",
-        1: "editor"
-    },
-    "game": {
-        0: "title"
-    },
-    "editor": {
-        0: "title"
-    }
-}
+    
+LEVELS: dict[str, list[list[list[list[bool]]], pygame.Surface]] = {}
 
 MODEL1 = [[[bool((i % 6 == 0 or i % 6 == 2) and j % 2 == 0 and i < 18 and j < 12) for i in range(BOARD_WIDTH * 2 - 1)]
                   for j in range(BOARD_DEPTH * 2 - 1)]

@@ -101,6 +101,21 @@ class tileMatrix:
     def to_str(self) -> str:
         return ",".join([".".join(["".join(["1" if isinstance(t, Tile) and not t.special else "0" for t in r])
                                    for r in l]) for l in self.matrix])
+        
+    def create_miniature(self, model: list[list[list[bool]]],
+                         name: str) -> pygame.Surface:
+        real_screen = self.screen
+        self.screen = pygame.Surface((WIDTH, HEIGHT))
+        self.screen.fill((5, 111, 15))
+        self.generate_board(model)
+        self.draw((-1, -1))
+        font = pygame.font.Font(None, 72)
+        text_surface = font.render(name, True, (255, 255, 255))
+        text_rect = text_surface.get_rect(center=(WIDTH // 2, text_surface.get_height() // 2 + 10))
+        self.screen.blit(text_surface, text_rect)
+        res_screen = self.screen.copy()
+        self.screen = real_screen
+        return res_screen
     
     def draw(self, pos, layers: list[int] | None = None, 
              active: list[int] | None = None,
