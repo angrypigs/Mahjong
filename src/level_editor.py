@@ -1,5 +1,6 @@
 import json
 import uuid
+from copy import deepcopy
 
 import pygame
 
@@ -149,6 +150,12 @@ class levelEditor(Screen):
             }
             with file_path.open('w', encoding='utf-8') as f:
                 json.dump(data, f, ensure_ascii=False, indent=4)
+            
+            LEVELS[data["uuid"]] = [self.matrix.to_model(),
+                                    self.matrix.create_miniature(
+                                        self.matrix.to_model(),
+                                        data['name']
+                                    )]
             return "title"
         return key
         

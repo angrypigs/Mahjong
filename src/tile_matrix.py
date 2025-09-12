@@ -27,7 +27,7 @@ class tileMatrix:
                                                         for _ in range(self.size[1])]
                                                        for _ in range(self.size[2])]
         
-    def generate_board(self, places: list[list[list[bool]]]) -> None:
+    def generate_board(self, places: list[list[list[bool]]]) -> int:
         keys = [x for x in TILES_TEXTURES["Dark"].keys() if x not in ["Blank", "Blocked"]]
         keys = [x for x in keys for _ in range(2)]
         # print(keys)
@@ -59,8 +59,9 @@ class tileMatrix:
             coords.append(two_places)
             counter -= 1
         if err_blocks:
-            print(len(coords))
+            print(f"Inside of generate_board: coords length: {len(coords)}")
             other_blocks = []
+            err_blocks.sort(key=lambda x: x[0], reverse=True)
             err_coords = err_blocks[0][1:]
             while len(err_blocks) != len(other_blocks):
                 b1, b2, key = coords.pop()
@@ -75,12 +76,12 @@ class tileMatrix:
             other_blocks.sort(key=lambda x: x[0], reverse=True)
             for i in range(len(err_blocks)):
                 coords.append((err_blocks[i], other_blocks[i], keys.pop()))
-            print(len(coords))
         for c in coords:
             c1, c2, key = c
             for h, d, w in (c1, c2):
                 self.place_tile(h, d, w, key, info=f"{h} {d} {w}", should_update=False)
         self.update_top_tiles()
+        return len(coords)
      
     def print(self) -> None:
         print(len(self.matrix), len(self.matrix[0]), len(self.matrix[0][0]))
@@ -101,6 +102,9 @@ class tileMatrix:
     def to_str(self) -> str:
         return ",".join([".".join(["".join(["1" if isinstance(t, Tile) and not t.special else "0" for t in r])
                                    for r in l]) for l in self.matrix])
+        
+    def to_model(self) -> list[list[list[bool]]]:
+        return [[[isinstance(t, Tile) and not t.special for t in r] for r in l] for l in self.matrix]
         
     def create_miniature(self, model: list[list[list[bool]]],
                          name: str) -> pygame.Surface:

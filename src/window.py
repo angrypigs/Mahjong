@@ -9,6 +9,8 @@ from src.level_editor import levelEditor
 from src.level_choice import levelChoice
 from src.tile_matrix import tileMatrix
 
+from tests.generate_board_test import generate_board_test
+
 
 
 class Window:
@@ -22,6 +24,7 @@ class Window:
         self.game_mode = "title"
         init_assets()
         self.__load_levels()
+        # generate_board_test("ac201c6b-7e72-44f0-865c-07ac92bebfca")
         self.current_screen : Screen = titleScreen(self.screen)
         self.pos = (0, 0)
         
