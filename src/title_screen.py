@@ -14,8 +14,10 @@ class titleScreen(Screen):
         h = 60
         self.buttons["choice"] = Button(self.screen, (WIDTH - w) // 2, (HEIGHT - h) // 2 - 50,
                                     w, h, "Play")
-        self.buttons["editor"] = (Button(self.screen, (WIDTH - w) // 2, (HEIGHT - h) // 2 + 50,
-                                    w, h, "Editor"))
+        self.buttons["editor"] = Button(self.screen, (WIDTH - w) // 2, (HEIGHT - h) // 2 + 50,
+                                    w, h, "Editor")
+        self.buttons["theme"] = Button(self.screen, WIDTH - 80, HEIGHT - 80,
+                                    60, 60, "Theme")
         
     def draw(self, pos):
         self.screen.blit(self.bg, (0, 0))

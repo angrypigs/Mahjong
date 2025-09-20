@@ -9,6 +9,10 @@ HEIGHT = 700
 WIDTH = 1000
 FPS = 90
 
+SETTINGS = {
+    "Theme": "Dark"
+}
+
 BOARD_WIDTH = 15
 BOARD_DEPTH = 8
 BOARD_HEIGHT = 5
@@ -17,13 +21,25 @@ SCALE_FACTOR = (2, 8)
 
 TILE_WIDTH = 101 * SCALE_FACTOR[0] // SCALE_FACTOR[1]
 TILE_DEPTH = 134 * SCALE_FACTOR[0] // SCALE_FACTOR[1]
-TILE_HEIGHT = 17 * SCALE_FACTOR[0] // SCALE_FACTOR[1]
+TILE_HEIGHT = 15 * SCALE_FACTOR[0] // SCALE_FACTOR[1]
 
 ITEMS_PER_PAGE = 6
 ITEMS_PER_ROW = 3
 
-BTN_COLOR = (40, 40, 40)
-BTN_COLOR_ACTIVE = (70, 70, 70)
+COLORS = {
+    "Dark": {
+        "Normal": (40, 40, 40),
+        "Active": (70, 70, 70),
+        "Text": (204, 204, 204),
+        "Overlay": (204, 204, 204)
+    },
+    "Light": {
+        "Normal": (170, 170, 130),
+        "Active": (200, 200, 150),
+        "Text": (20, 20, 20),
+        "Overlay": (20, 20, 20)
+    }
+}
 
 if os.name == "nt":  # Windows
     ROAMING_PATH = Path(os.environ['APPDATA']) / "MahjongPython"
@@ -55,24 +71,27 @@ class Button:
                  width: int, 
                  height: int, 
                  text: str,
-                 img: pygame.Surface | None = None,
-                 color: tuple[int, int, int] | None = None) -> None:
+                 img: pygame.Surface | None = None) -> None:
         self.screen = screen
         self.rect = pygame.Rect(x, y, width, height)
         self.text = text
         self.font = pygame.font.Font(None, 44)
         self._cursor_flag = False
         self.img = pygame.transform.smoothscale(img, (width, height)) if img is not None else None
-        self.color = BTN_COLOR if color is None else color
-        self.color_active = BTN_COLOR_ACTIVE if color is None else tuple([x + 40 for x in color])
+        self.reload()
         self.active = True
+        
+    def reload(self) -> None:
+        self.color = COLORS[SETTINGS["Theme"]]["Normal"]
+        self.color_active = COLORS[SETTINGS["Theme"]]["Active"]
+        self.text_color = COLORS[SETTINGS["Theme"]]["Text"]
 
     def draw(self, cursor_pos) -> bool:
         if self.active:
             pygame.draw.rect(self.screen, 
                             self.color_active if self._cursor_flag else self.color, 
                             self.rect, border_radius=10)
-            text_surface = self.font.render(self.text, True, (204, 204, 204))
+            text_surface = self.font.render(self.text, True, self.text_color)
             text_rect = text_surface.get_rect(center=self.rect.center)
             self.screen.blit(text_surface, text_rect)
             if self.img is not None:
@@ -172,6 +191,10 @@ class Screen:
         self._pressed_button = None
         self._hovered_button = None
         return res
+    
+    def reload(self) -> None:
+        for button in self.buttons.values():
+            button.reload()
         
 
 def res_path(rel_path: str) -> str:
@@ -212,25 +235,31 @@ def init_assets() -> None:
         key = filename.removesuffix(".png")
         image_path = os.path.join(res_path("assets/Buttons"), filename)
         TILES_TEXTURES[key] = pygame.transform.smoothscale(pygame.image.load(image_path), (80, 80))
-    for filename in os.listdir(res_path("assets/Dark Theme")):
-        if filename.startswith("Neutral"):
-            key = filename.removeprefix("Neutral ").removesuffix(".png")
-            # if key != "Blank":
-            image_path = os.path.join(res_path("assets/Dark Theme"), filename)
-            image = pygame.image.load(image_path)
-            width, height = image.get_size()
-            scaled_image = pygame.transform.smoothscale(image, (width * SCALE_FACTOR[0] // SCALE_FACTOR[1], 
-                                                                height * SCALE_FACTOR[0] // SCALE_FACTOR[1]))
-            TILES_TEXTURES["Dark"][key] = scaled_image
-        elif filename.startswith("Selected"):
-            key = filename.removeprefix("Selected ").removesuffix(".png")
-            # if key != "Blank":
-            image_path = os.path.join(res_path("assets/Dark Theme"), filename)
-            image = pygame.image.load(image_path)
-            width, height = image.get_size()
-            scaled_image = pygame.transform.smoothscale(image, (width * SCALE_FACTOR[0] // SCALE_FACTOR[1], 
-                                                                height * SCALE_FACTOR[0] // SCALE_FACTOR[1]))
-            TILES_TEXTURES["DarkSelected"][key] = scaled_image
+    for theme in ("Dark", "Light"):
+        for filename in os.listdir(res_path(f"assets/{theme} Theme")):
+            if filename.startswith("Neutral"):
+                key = filename.removeprefix("Neutral ").removesuffix(".png")
+                # if key != "Blank":
+                image_path = os.path.join(res_path(f"assets/{theme} Theme"), filename)
+                image = pygame.image.load(image_path)
+                width, height = image.get_size()
+                scaled_image = pygame.transform.smoothscale(image, (width * SCALE_FACTOR[0] // SCALE_FACTOR[1], 
+                                                                    height * SCALE_FACTOR[0] // SCALE_FACTOR[1]))
+                TILES_TEXTURES[theme][key] = scaled_image.copy()
+            elif filename.startswith("Selected"):
+                key = filename.removeprefix("Selected ").removesuffix(".png")
+                # if key != "Blank":
+                image_path = os.path.join(res_path(f"assets/{theme} Theme"), filename)
+                image = pygame.image.load(image_path)
+                width, height = image.get_size()
+                scaled_image = pygame.transform.smoothscale(image, (width * SCALE_FACTOR[0] // SCALE_FACTOR[1], 
+                                                                    height * SCALE_FACTOR[0] // SCALE_FACTOR[1]))
+                TILES_TEXTURES[f"{theme}Selected"][key] = scaled_image.copy()
+        image = pygame.image.load(res_path(f"assets/Other/{theme}Overlay.png")).convert_alpha()
+        width, height = image.get_size()
+        scaled_image = pygame.transform.smoothscale(image, (width * SCALE_FACTOR[0] // SCALE_FACTOR[1], 
+                                                            height * SCALE_FACTOR[0] // SCALE_FACTOR[1]))
+        TILES_TEXTURES[f"{theme}Overlay"] = scaled_image.copy()
     TILES_TEXTURES["quantity"] = len([x for x in TILES_TEXTURES["Dark"].keys() if x not in ["Blank", "Blocked"]]) * 4
     levels_path = ROAMING_PATH / "levels"
     levels_path.mkdir(parents=True, exist_ok=True)

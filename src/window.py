@@ -74,7 +74,11 @@ class Window:
                 case "editor":
                     self.current_screen = levelEditor(self.screen)
                 case "choice":
-                    self.current_screen = levelChoice(self.screen)                  
+                    self.current_screen = levelChoice(self.screen)  
+                case "theme":
+                    SETTINGS["Theme"] = "Dark" if SETTINGS["Theme"] == "Light" else "Light"  
+                    for button in self.current_screen.buttons.values():
+                        button.reload()       
                 case _:
                     if self.game_mode.startswith("level:"):
                         name = self.game_mode[6:]

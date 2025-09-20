@@ -173,7 +173,7 @@ class tileMatrix:
                    should_update: bool = True) -> None:
         x = w * TILE_WIDTH + self.offset_x - TILE_HEIGHT * h
         y = d * TILE_DEPTH + self.offset_y - TILE_HEIGHT * h
-        self.matrix[h][d][w] = Tile(self.screen, x, y, key, color, special, info, counts)
+        self.matrix[h][d][w] = Tile(self.screen, x, y, key, special, info, counts)
         if should_update: self.update_top_tiles()
     
     def can_be_removed(self, coords: tuple[int, int, int],
